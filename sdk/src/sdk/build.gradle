@@ -1,47 +1,124 @@
-apply plugin: 'com.android.library'
-
-ext {
-    PUBLISH_ARTIFACT_ID = 'azure-mobile-android'
+plugins {
+	id "com.github.dcendents.android-maven" version "1.5"
+	id "com.jfrog.bintray" version "1.7.3"
 }
 
-group = 'com.microsoft.azure'
+apply plugin: 'com.android.library'
+
+def libraryVersion = "3.2.1"
+def libraryName = "azure-mobile-apps"
+def libraryGroup = "com.minyushov.android"
+def libraryRepo = "android"
+def libraryUrl = "https://github.com/Azure/azure-mobile-apps-android-client.git"
+
+project.archivesBaseName = libraryName
+group = libraryGroup
+version = libraryVersion
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+	user = properties.getProperty("bintray.user")
+	key = properties.getProperty("bintray.apikey")
+
+	configurations = ['archives']
+	dryRun = true
+
+	pkg {
+		repo = libraryRepo
+		name = libraryName
+		vcsUrl = libraryUrl
+		licenses = ['Apache-2.0']
+	}
+}
+
+install {
+	repositories.mavenInstaller {
+		pom.project {
+			packaging 'aar'
+			groupId libraryGroup
+			artifactId libraryName
+			version libraryVersion
+
+			name libraryName
+			url libraryUrl
+
+			licenses {
+				license {
+					name 'The Apache Software License, Version 2.0'
+					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+				}
+			}
+			developers {
+				developer {
+					name 'microsoft'
+				}
+			}
+			scm {
+				connection libraryUrl
+				url libraryUrl
+			}
+		}
+	}
+}
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
-    defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            manifestPlaceholders = ['redirectUriScheme': '']
-        }
-        debug {
-            manifestPlaceholders = ['redirectUriScheme': '']
-        }
-    }
-    lintOptions {
-        abortOnError false
-    }
-    productFlavors {
-    }
+	compileSdkVersion 25
+	buildToolsVersion '25.0.2'
+	defaultConfig {
+		minSdkVersion 19
+		targetSdkVersion 25
+		versionCode 1
+		versionName "1.0"
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_7
+		targetCompatibility JavaVersion.VERSION_1_7
+	}
+	buildTypes {
+		release {
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+			manifestPlaceholders = ['redirectUriScheme': '']
+		}
+		debug {
+			manifestPlaceholders = ['redirectUriScheme': '']
+		}
+	}
+	lintOptions {
+		abortOnError false
+	}
+	configurations {
+		javadocDeps
+	}
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.google.code.gson:gson:2.7'
-    compile 'com.google.guava:guava:20.0'
-    compile 'com.squareup.okhttp:okhttp:2.7.5'
-    compile 'com.android.support:customtabs:25.3.1'
+	compile fileTree(include: ['*.jar'], dir: 'libs')
+	compile 'com.google.code.gson:gson:2.7'
+	compile 'com.google.guava:guava:20.0'
+	compile 'com.squareup.okhttp:okhttp:2.7.5'
+	compile 'com.android.support:customtabs:25.3.1'
 }
 
-apply from : '../../android-libraries.gradle'
+task sourcesJar(type: Jar) {
+	from android.sourceSets.main.java.srcDirs
+	classifier = "sources"
+}
+
+task javadoc(type: Javadoc) {
+	source = android.sourceSets.main.java.srcDirs
+	classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+	classpath += configurations.javadocDeps
+	failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier = "javadoc"
+	from javadoc.destinationDir
+}
+artifacts {
+	archives sourcesJar
+	archives javadocJar
+}

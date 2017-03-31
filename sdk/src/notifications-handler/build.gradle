@@ -1,9 +1,5 @@
 apply plugin: 'com.android.library'
 
-ext {
-    PUBLISH_ARTIFACT_ID = 'azure-notifications-handler'
-}
-
 android {
     compileSdkVersion 21
     buildToolsVersion '25.0.2'
@@ -31,5 +27,3 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.android.gms:play-services-gcm:10.2.1'
 }
-
-apply from : '../../android-libraries.gradle'
