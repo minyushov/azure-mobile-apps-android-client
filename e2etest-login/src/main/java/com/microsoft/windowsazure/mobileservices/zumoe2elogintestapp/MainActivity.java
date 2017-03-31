@@ -27,15 +27,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import java.net.MalformedURLException;
+import java.util.HashMap;
+
 import com.microsoft.windowsazure.mobileservices.MobileServiceActivityResult;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.UserAuthenticationCallback;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
-
-
-import java.net.MalformedURLException;
-import java.util.HashMap;
 
 public class MainActivity extends Activity {
 
@@ -56,7 +55,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.content_main);
         // Create the client instance, using the provided mobile app URL.
         try {
-            mClient = new MobileServiceClient("https://dihei-e2e-app.azurewebsites.net", this);
+            mClient = new MobileServiceClient("https://dihei-e2e-app.azurewebsites.net", "", this);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

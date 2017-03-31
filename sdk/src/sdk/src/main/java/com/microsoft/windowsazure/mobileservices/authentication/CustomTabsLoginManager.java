@@ -26,17 +26,17 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Base64;
 
-import com.google.gson.Gson;
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import java.net.URL;
+
+import com.google.gson.Gson;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 /**
  * Class for handling Login operations with Authentication Providers
@@ -86,6 +86,11 @@ public class CustomTabsLoginManager {
     private static final int MIN_CODE_VERIFIER_LENGTH = 43;
 
     /**
+     * Mobile Service application key
+     */
+    private String mAppKey;
+
+    /**
      * Application URL
      */
     private String mAppUrl;
@@ -100,8 +105,9 @@ public class CustomTabsLoginManager {
      */
     private String mAlternateLoginHost;
 
-    public CustomTabsLoginManager(String appUrl, String loginUriPrefix, String alternateLoginHost) {
+    public CustomTabsLoginManager(String appUrl, String appKey, String loginUriPrefix, String alternateLoginHost) {
         mAppUrl = appUrl;
+        mAppKey = appKey;
         mLoginUriPrefix = loginUriPrefix;
         mAlternateLoginHost = alternateLoginHost;
     }
@@ -109,7 +115,7 @@ public class CustomTabsLoginManager {
     public void authenticate(String provider, String uriScheme, HashMap<String, String> parameters, Context context, int authRequestCode) {
         provider = UriHelper.normalizeProvider(provider);
         String codeVerifier = generateRandomCodeVerifier();
-        CustomTabsLoginState loginState = new CustomTabsLoginState(uriScheme, codeVerifier, provider, mAppUrl, mLoginUriPrefix, mAlternateLoginHost, parameters);
+        CustomTabsLoginState loginState = new CustomTabsLoginState(uriScheme, codeVerifier, provider, mAppUrl, mAppKey, mLoginUriPrefix, mAlternateLoginHost, parameters);
 
         startCustomTabsIntermediateActivityForResult(context, loginState, authRequestCode);
     }

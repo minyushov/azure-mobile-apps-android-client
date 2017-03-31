@@ -26,6 +26,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.customtabs.CustomTabsIntent;
 
+import java.net.URL;
+import java.util.HashMap;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.SettableFuture;
@@ -38,10 +41,12 @@ import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequestImpl;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
-import java.net.URL;
-import java.util.HashMap;
-
-import static com.microsoft.windowsazure.mobileservices.authentication.CustomTabsLoginManager.*;
+import static com.microsoft.windowsazure.mobileservices.authentication.CustomTabsLoginManager.EASY_AUTH_CALLBACK_URL_SEGMENT;
+import static com.microsoft.windowsazure.mobileservices.authentication.CustomTabsLoginManager.EASY_AUTH_LOGIN_PARAM_CODE_CHALLENGE;
+import static com.microsoft.windowsazure.mobileservices.authentication.CustomTabsLoginManager.EASY_AUTH_LOGIN_PARAM_CODE_CHALLENGE_METHOD;
+import static com.microsoft.windowsazure.mobileservices.authentication.CustomTabsLoginManager.EASY_AUTH_LOGIN_PARAM_REDIRECT_URL;
+import static com.microsoft.windowsazure.mobileservices.authentication.CustomTabsLoginManager.KEY_LOGIN_IN_PROGRESS;
+import static com.microsoft.windowsazure.mobileservices.authentication.CustomTabsLoginManager.KEY_LOGIN_STATE;
 
 /**
  * Activity working together with {@link CustomTabsIntermediateActivity} to handles
@@ -240,7 +245,7 @@ public class CustomTabsLoginActivity extends Activity {
         boolean loginFlowStatus = false;
 
         try {
-            mClient = new MobileServiceClient(mLoginState.getAppUrl(), this);
+            mClient = new MobileServiceClient(mLoginState.getAppUrl(), mLoginState.getAppKey(), this);
             mClient.setLoginUriPrefix(mLoginState.getLoginUriPrefix());
             URL alternateLoginHost = mLoginState.getAlternateLoginHost() != null ? new URL(mLoginState.getAlternateLoginHost()) : null;
             mClient.setAlternateLoginHost(alternateLoginHost);

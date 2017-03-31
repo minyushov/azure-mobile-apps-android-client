@@ -112,6 +112,10 @@ public class MobileServiceClient {
      */
     private LoginManager mLoginManager;
     /**
+     * Mobile Service application key
+     */
+    private String mAppKey;
+    /**
      * Mobile Service URL
      */
     private URL mAppUrl;
@@ -238,7 +242,7 @@ public class MobileServiceClient {
      * @param client An existing MobileServiceClient
      */
     private MobileServiceClient(MobileServiceClient client) {
-        initialize(client.getAppUrl(), client.getCurrentUser(), client.getGsonBuilder(), client.getContext(),
+        initialize(client.getAppUrl(), client.getAppKey(), client.getCurrentUser(), client.getGsonBuilder(), client.getContext(),
                 client.getOkHttpClientFactory(), client.getLoginUriPrefix(), client.getAlternateLoginHost());
     }
 
@@ -249,8 +253,8 @@ public class MobileServiceClient {
      * @param context The Context where the MobileServiceClient is created
      * @throws java.net.MalformedURLException
      */
-    public MobileServiceClient(String appUrl, Context context) throws MalformedURLException {
-        this(new URL(appUrl), context);
+    public MobileServiceClient(String appUrl, String appKey, Context context) throws MalformedURLException {
+        this(new URL(appUrl), appKey, context);
     }
 
     /**
@@ -259,9 +263,9 @@ public class MobileServiceClient {
      * @param appUrl  Mobile Service URL
      * @param context The Context where the MobileServiceClient is created
      */
-    public MobileServiceClient(URL appUrl, Context context) {
+    public MobileServiceClient(URL appUrl, String appKey, Context context) {
         GsonBuilder gsonBuilder = createMobileServiceGsonBuilder();
-        initialize(appUrl, null, gsonBuilder, context, new OkHttpClientFactoryImpl(), null, null);
+        initialize(appUrl, appKey, null, gsonBuilder, context, new OkHttpClientFactoryImpl(), null, null);
     }
 
     /**
@@ -271,8 +275,8 @@ public class MobileServiceClient {
      * @param context The Context where the MobileServiceClient is created
      * @throws java.net.MalformedURLException
      */
-    public MobileServiceClient(String appUrl, Context context, GsonBuilder gsonBuilder) throws MalformedURLException {
-        this(new URL(appUrl), context, gsonBuilder);
+    public MobileServiceClient(String appUrl, String appKey, Context context, GsonBuilder gsonBuilder) throws MalformedURLException {
+        this(new URL(appUrl), appKey, context, gsonBuilder);
     }
 
     /**
@@ -281,8 +285,8 @@ public class MobileServiceClient {
      * @param appUrl  Mobile Service URL
      * @param context The Context where the MobileServiceClient is created
      */
-    public MobileServiceClient(URL appUrl, Context context, GsonBuilder gsonBuilder) {
-        initialize(appUrl, null, gsonBuilder, context, new OkHttpClientFactoryImpl(), null, null);
+    public MobileServiceClient(URL appUrl, String appKey, Context context, GsonBuilder gsonBuilder) {
+        initialize(appUrl, appKey, null, gsonBuilder, context, new OkHttpClientFactoryImpl(), null, null);
     }
 
     /**
@@ -1017,6 +1021,13 @@ public class MobileServiceClient {
     }
 
     /**
+     * Returns the Mobile Service application key
+     */
+    public String getAppKey() {
+        return mAppKey;
+    }
+
+    /**
      * @return The Mobile Service URL
      */
     public URL getAppUrl() {
@@ -1628,11 +1639,12 @@ public class MobileServiceClient {
      * Initializes the MobileServiceClient
      *
      * @param appUrl      Mobile Service URL
+     * @param appKey      Mobile Service application key
      * @param currentUser The Mobile Service user used to authenticate requests
      * @param gsonBuilder the GsonBuilder used to in JSON Serialization/Deserialization
      * @param context     The Context where the MobileServiceClient is created
      */
-    private void initialize(URL appUrl, MobileServiceUser currentUser, GsonBuilder gsonBuilder, Context context,
+    private void initialize(URL appUrl, String appKey, MobileServiceUser currentUser, GsonBuilder gsonBuilder, Context context,
                             OkHttpClientFactory okHttpClientFactory, String loginUriPrefix, URL alternateLoginHost) {
         if (appUrl == null || appUrl.toString().trim().length() == 0) {
             throw new IllegalArgumentException("Invalid Application URL");
@@ -1644,6 +1656,7 @@ public class MobileServiceClient {
 
         URL normalizedAppURL = normalizeUrl(appUrl);
         mAppUrl = normalizedAppURL;
+        mAppKey = appKey;
         mLoginManager = new LoginManager(this);
         mLoginUriPrefix = loginUriPrefix;
         mAlternateLoginHost = alternateLoginHost;
@@ -1657,6 +1670,7 @@ public class MobileServiceClient {
         mSyncContext = new MobileServiceSyncContext(this);
         mCustomTabsLoginManager = new CustomTabsLoginManager(
                 mAppUrl != null ? mAppUrl.toString() : null,
+                mAppKey,
                 mLoginUriPrefix,
                 mAlternateLoginHost != null ? mAlternateLoginHost.toString() : null);
     }

@@ -43,6 +43,11 @@ public class CustomTabsLoginState {
     private String mAuthenticationProvider;
 
     /**
+     * Mobile Service application key
+     */
+    private String mAppKey;
+
+    /**
      * Mobile Service app Url
      */
     private String mAppUrl;
@@ -62,11 +67,12 @@ public class CustomTabsLoginState {
      */
     private HashMap<String, String> mLoginParameters;
 
-    public CustomTabsLoginState(String urlScheme, String codeVerifier, String authenticationProvider, String appUrl, String loginUriPrefix, String alternateLoginHost, HashMap<String, String> parameters) {
+    public CustomTabsLoginState(String urlScheme, String codeVerifier, String authenticationProvider, String appUrl, String appKey, String loginUriPrefix, String alternateLoginHost, HashMap<String, String> parameters) {
         this.mUriScheme = urlScheme;
         this.mCodeVerifier = codeVerifier;
         this.mAuthenticationProvider = authenticationProvider;
         this.mAppUrl = appUrl;
+        this.mAppKey = appKey;
         this.mLoginUriPrefix = loginUriPrefix;
         this.mAlternateLoginHost = alternateLoginHost;
         this.mLoginParameters = parameters;
@@ -86,6 +92,10 @@ public class CustomTabsLoginState {
 
     public String getAppUrl() {
         return mAppUrl;
+    }
+
+    public String getAppKey() {
+        return mAppKey;
     }
 
     public String getLoginUriPrefix() {
