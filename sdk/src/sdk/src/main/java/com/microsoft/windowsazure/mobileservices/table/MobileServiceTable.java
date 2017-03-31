@@ -25,6 +25,10 @@ package com.microsoft.windowsazure.mobileservices.table;
 
 import android.util.Pair;
 
+import java.lang.reflect.Field;
+import java.util.EnumSet;
+import java.util.List;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -40,10 +44,6 @@ import com.microsoft.windowsazure.mobileservices.table.query.ExecutableQuery;
 import com.microsoft.windowsazure.mobileservices.table.query.Query;
 import com.microsoft.windowsazure.mobileservices.table.query.QueryOrder;
 import com.microsoft.windowsazure.mobileservices.table.serialization.JsonEntityParser;
-
-import java.lang.reflect.Field;
-import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Represents a Mobile Service Table, Provides operations on a table for a Mobile Service.
@@ -69,6 +69,17 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
         mInternalTable.mFeatures = EnumSet.of(MobileServiceFeatures.TypedTable);
         mClazz = clazz;
 
+        mSystemProperties = getSystemProperties(clazz);
+        mInternalTable.setSystemProperties(mSystemProperties);
+    }
+
+    public EnumSet<MobileServiceSystemProperty> getSystemProperties() {
+        return mInternalTable.getSystemProperties();
+    }
+
+    public void setSystemProperties(EnumSet<MobileServiceSystemProperty> systemProperties) {
+        this.mSystemProperties = systemProperties;
+        this.mInternalTable.setSystemProperties(systemProperties);
     }
 
     /**

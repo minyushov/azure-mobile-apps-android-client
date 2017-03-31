@@ -26,6 +26,14 @@ package com.microsoft.windowsazure.mobileservices.table;
 import android.net.Uri;
 import android.util.Pair;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -46,20 +54,17 @@ import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequestImpl;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
-abstract class MobileServiceTableBase {
+abstract class MobileServiceTableBase implements MobileServiceTableSystemPropertiesProvider {
 
     /**
      * Tables URI part
      */
     public static final String TABLES_URL = "tables/";
+
+    /**
+     * The name of the _system query string parameter
+     */
+    protected static final String SystemPropertiesQueryParameterName = "__systemproperties";
 
     /**
      * The system property names with the correct prefix.
@@ -98,6 +103,11 @@ abstract class MobileServiceTableBase {
      * The name of the represented table
      */
     protected String mTableName;
+
+    /**
+     * The Mobile Service system properties to be included with items
+     */
+    protected EnumSet<MobileServiceSystemProperty> mSystemProperties = EnumSet.noneOf(MobileServiceSystemProperty.class);
 
     /**
      * Features to be sent in telemetry headers for requests made by this table
@@ -409,6 +419,20 @@ abstract class MobileServiceTableBase {
     }
 
     /**
+     * Returns the set of enabled System Properties
+     */
+    public EnumSet<MobileServiceSystemProperty> getSystemProperties() {
+        return mSystemProperties;
+    }
+
+    /**
+     * Sets the set of enabled System Properties
+     */
+    public void setSystemProperties(EnumSet<MobileServiceSystemProperty> systemProperties) {
+        this.mSystemProperties = systemProperties;
+    }
+
+    /**
      * @return the client used for table operations
      */
     protected MobileServiceClient getClient() {
@@ -520,6 +544,8 @@ abstract class MobileServiceTableBase {
         if (parameters != null && parameters.size() > 0) {
             features.add(MobileServiceFeatures.AdditionalQueryParameters);
         }
+
+        parameters = addSystemProperties(mSystemProperties, parameters);
 
         if (parameters != null && parameters.size() > 0) {
             for (Pair<String, String> parameter : parameters) {
@@ -966,5 +992,37 @@ abstract class MobileServiceTableBase {
         return (id == 0);
     }
 
+    /**
+     * Adds the tables requested system properties to the parameters collection.
+     *
+     * @param systemProperties The system properties to add.
+     * @param parameters       The parameters collection.
+     * @return The parameters collection with any requested system properties
+     * included.
+     */
+    public List<Pair<String, String>> addSystemProperties(EnumSet<MobileServiceSystemProperty> systemProperties, List<Pair<String, String>> parameters) {
+        boolean containsSystemProperties = false;
 
+        List<Pair<String, String>> result = new ArrayList<Pair<String, String>>(parameters != null ? parameters.size() : 0);
+
+        // Make sure we have a case-insensitive parameters list
+        if (parameters != null) {
+            for (Pair<String, String> parameter : parameters) {
+                result.add(parameter);
+                containsSystemProperties = containsSystemProperties || parameter.first.equalsIgnoreCase(SystemPropertiesQueryParameterName);
+            }
+        }
+
+        // If there is already a user parameter for the system properties, just
+        // use it
+        if (!containsSystemProperties) {
+            String systemPropertiesString = getSystemPropertiesString(systemProperties);
+
+            if (systemPropertiesString != null) {
+                result.add(new Pair<String, String>(SystemPropertiesQueryParameterName, systemPropertiesString));
+            }
+        }
+
+        return result;
+    }
 }

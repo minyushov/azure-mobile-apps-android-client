@@ -133,12 +133,12 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
             url = mClient.getAppUrl().toString() + TABLES_URL + URLEncoder.encode(mTableName, MobileServiceClient.UTF8_ENCODING);
 
             if (filtersUrl.length() > 0) {
-                url += "?$filter=" + filtersUrl + QueryODataWriter.getRowSetModifiers(query);
+                url += "?$filter=" + filtersUrl + QueryODataWriter.getRowSetModifiers(query, this);
             } else {
-                String rowSetModifiers = QueryODataWriter.getRowSetModifiers(query);
+                String rowSetModifiers = QueryODataWriter.getRowSetModifiers(query, this);
 
                 if (rowSetModifiers.length() > 0) {
-                    url += "?" + QueryODataWriter.getRowSetModifiers(query).substring(1);
+                    url += "?" + QueryODataWriter.getRowSetModifiers(query, this).substring(1);
                 }
             }
         } catch (UnsupportedEncodingException e) {
@@ -385,6 +385,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
             features.add(MobileServiceFeatures.AdditionalQueryParameters);
         }
 
+        parameters = addSystemProperties(mSystemProperties, parameters);
+
         if (parameters != null && parameters.size() > 0) {
             for (Pair<String, String> parameter : parameters) {
                 uriBuilder.appendQueryParameter(parameter.first, parameter.second);
@@ -499,6 +501,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
             features.add(MobileServiceFeatures.AdditionalQueryParameters);
         }
 
+        parameters = addSystemProperties(mSystemProperties, parameters);
+
         ListenableFuture<Pair<JsonObject, ServiceFilterResponse>> internalFuture = this.executeTableOperation(TABLES_URL + mTableName, content, HttpConstants.PostMethod, null, parameters, features);
 
         Futures.addCallback(internalFuture, new FutureCallback<Pair<JsonObject, ServiceFilterResponse>>() {
@@ -609,6 +613,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
             features.add(MobileServiceFeatures.AdditionalQueryParameters);
         }
 
+        parameters = addSystemProperties(mSystemProperties, parameters);
+
         List<Pair<String, String>> requestHeaders = null;
         if (version != null) {
             requestHeaders = new ArrayList<Pair<String, String>>();
@@ -718,6 +724,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
             features.add(MobileServiceFeatures.AdditionalQueryParameters);
         }
 
+        parameters = addSystemProperties(mSystemProperties, parameters);
+
         List<Pair<String, String>> requestHeaders = null;
         if (version != null) {
             requestHeaders = new ArrayList<Pair<String, String>>();
@@ -819,6 +827,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
         if (parameters != null && parameters.size() > 0) {
             features.add(MobileServiceFeatures.AdditionalQueryParameters);
         }
+
+        parameters = addSystemProperties(mSystemProperties, parameters);
 
         List<Pair<String, String>> requestHeaders = null;
         if (version != null) {

@@ -23,14 +23,16 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.table.sync.operations;
 
+import java.util.EnumSet;
+import java.util.concurrent.ExecutionException;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.JsonObject;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceException;
 import com.microsoft.windowsazure.mobileservices.MobileServiceFeatures;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceJsonTable;
-
-import java.util.concurrent.ExecutionException;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceSystemProperty;
 
 /**
  * Processes a table operation against a remote store.
@@ -52,6 +54,7 @@ public class RemoteTableOperationProcessor implements TableOperationVisitor<Json
     @Override
     public JsonObject visit(InsertOperation operation) throws Throwable {
         MobileServiceJsonTable table = this.getRemoteTable(operation.getTableName());
+        table.setSystemProperties(EnumSet.allOf(MobileServiceSystemProperty.class));
 
         JsonObject item = table.removeSystemProperties(this.mItem);
 
@@ -67,6 +70,7 @@ public class RemoteTableOperationProcessor implements TableOperationVisitor<Json
     @Override
     public JsonObject visit(UpdateOperation operation) throws Throwable {
         MobileServiceJsonTable table = this.getRemoteTable(operation.getTableName());
+        table.setSystemProperties(table.getSystemProperties(this.mItem));
 
         ListenableFuture<JsonObject> future = table.update(this.mItem);
 

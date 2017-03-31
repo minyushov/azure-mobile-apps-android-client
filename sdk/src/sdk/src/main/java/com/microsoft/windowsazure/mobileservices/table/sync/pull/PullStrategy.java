@@ -1,8 +1,11 @@
 package com.microsoft.windowsazure.mobileservices.table.sync.pull;
 
+import java.util.EnumSet;
+
 import com.google.gson.JsonArray;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceJsonTable;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceSystemColumns;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceSystemProperty;
 import com.microsoft.windowsazure.mobileservices.table.query.Query;
 import com.microsoft.windowsazure.mobileservices.table.query.QueryOrder;
 
@@ -24,6 +27,8 @@ public class PullStrategy {
     }
 
     public void initialize() {
+        table.setSystemProperties(EnumSet.noneOf(MobileServiceSystemProperty.class));
+        table.setSystemProperties(EnumSet.of(MobileServiceSystemProperty.Version, MobileServiceSystemProperty.Deleted));
 
         query.includeDeleted();
         query.removeInlineCount();

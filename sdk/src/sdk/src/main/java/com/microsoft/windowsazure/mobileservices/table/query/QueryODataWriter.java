@@ -28,6 +28,8 @@ import android.util.Pair;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTableSystemPropertiesProvider;
+
 public class QueryODataWriter {
 
     /**
@@ -48,7 +50,7 @@ public class QueryODataWriter {
      *
      * @throws java.io.UnsupportedEncodingException
      */
-    public static String getRowSetModifiers(Query query) throws UnsupportedEncodingException {
+    public static String getRowSetModifiers(Query query, MobileServiceTableSystemPropertiesProvider table) throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
 
         if (query != null) {
@@ -90,7 +92,7 @@ public class QueryODataWriter {
             }
         }
 
-        List<Pair<String, String>> parameters = query != null ? query.getUserDefinedParameters() : null;
+        List<Pair<String, String>> parameters = table.addSystemProperties(table.getSystemProperties(), query != null ? query.getUserDefinedParameters() : null);
 
         for (Pair<String, String> parameter : parameters) {
             if (parameter.first != null) {

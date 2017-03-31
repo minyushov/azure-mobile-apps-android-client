@@ -1,5 +1,12 @@
 package com.microsoft.windowsazure.mobileservices.table.sync.pull;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
+
 import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -7,18 +14,13 @@ import com.google.gson.JsonObject;
 import com.microsoft.windowsazure.mobileservices.table.DateTimeOffset;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceJsonTable;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceSystemColumns;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceSystemProperty;
 import com.microsoft.windowsazure.mobileservices.table.query.Query;
 import com.microsoft.windowsazure.mobileservices.table.query.QueryOperations;
 import com.microsoft.windowsazure.mobileservices.table.query.QueryOrder;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.ColumnDataType;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStore;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStoreException;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * Created by marianosanchez on 11/3/14.
@@ -55,6 +57,8 @@ public class IncrementalPullStrategy extends PullStrategy {
         JsonElement results = null;
 
         try {
+            table.setSystemProperties(EnumSet.noneOf(MobileServiceSystemProperty.class));
+            table.setSystemProperties(EnumSet.of(MobileServiceSystemProperty.Version, MobileServiceSystemProperty.Deleted, MobileServiceSystemProperty.UpdatedAt));
 
             query.includeDeleted();
             query.removeInlineCount();
