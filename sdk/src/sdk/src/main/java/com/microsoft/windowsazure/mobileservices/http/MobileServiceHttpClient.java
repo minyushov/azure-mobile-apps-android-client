@@ -195,8 +195,8 @@ public class MobileServiceHttpClient {
         new RequestAsyncTask(request, conn) {
             @Override
             protected void onPostExecute(ServiceFilterResponse response) {
-                if (mTaskException != null) {
-                    future.setException(mTaskException);
+                if (exception != null) {
+                    future.setException(exception);
                 } else {
                     future.set(response);
                 }

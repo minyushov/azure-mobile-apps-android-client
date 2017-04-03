@@ -166,7 +166,7 @@ public class LoginManager {
         new RequestAsyncTask(request, connection) {
             @Override
             protected void onPostExecute(ServiceFilterResponse response) {
-                if (mTaskException == null && response != null) {
+                if (exception == null && response != null) {
                     MobileServiceUser user;
                     try {
                         // Get the user from the response and create a
@@ -181,9 +181,9 @@ public class LoginManager {
 
                     future.set(user);
                 } else {
-                    if (mTaskException != null && mTaskException.getResponse() != null && mTaskException.getResponse().getStatus() != null) {
+                    if (exception != null && exception.getResponse() != null && exception.getResponse().getStatus() != null) {
                         String message;
-                        switch (mTaskException.getResponse().getStatus().code) {
+                        switch (exception.getResponse().getStatus().code) {
                             case 400:
                                 message = "Refresh failed with a 400 Bad Request error. The identity provider does not support refresh, or the user is not logged in with sufficient permission.";
                                 break;
@@ -197,7 +197,7 @@ public class LoginManager {
                                 message = "Refresh failed due to an unexpected error.";
                                 break;
                         }
-                        future.setException(new MobileServiceException(message, mTaskException));
+                        future.setException(new MobileServiceException(message, exception));
                     } else {
                         future.setException(new MobileServiceException("Error on refresh user."));
                     }
@@ -626,7 +626,7 @@ public class LoginManager {
         new RequestAsyncTask(request, connection) {
             @Override
             protected void onPostExecute(ServiceFilterResponse response) {
-                if (mTaskException == null && response != null) {
+                if (exception == null && response != null) {
                     MobileServiceUser user;
                     try {
                         // Get the user from the response and create a
@@ -641,7 +641,7 @@ public class LoginManager {
 
                     future.set(user);
                 } else {
-                    future.setException(new MobileServiceException("Error while authenticating user.", mTaskException));
+                    future.setException(new MobileServiceException("Error while authenticating user.", exception));
                 }
             }
         }.executeTask();

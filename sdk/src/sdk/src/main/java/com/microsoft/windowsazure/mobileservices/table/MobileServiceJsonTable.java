@@ -30,7 +30,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -963,7 +962,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
         new RequestAsyncTask(request, conn) {
             @Override
             protected void onPostExecute(ServiceFilterResponse response) {
-                if (mTaskException == null && response != null) {
+                if (exception == null && response != null) {
                     JsonElement results = null;
 
                     try {
@@ -978,7 +977,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
                         future.setException(new MobileServiceException("Error while retrieving data from response.", e, response));
                     }
                 } else {
-                    future.setException(mTaskException);
+                    future.setException(exception);
                 }
             }
         }.executeTask();

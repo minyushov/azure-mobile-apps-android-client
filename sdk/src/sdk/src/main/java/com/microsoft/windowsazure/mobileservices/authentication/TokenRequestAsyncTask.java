@@ -66,7 +66,7 @@ class TokenRequestAsyncTask extends RequestAsyncTask {
 
     @Override
     protected void onPostExecute(ServiceFilterResponse response) {
-        if (mTaskException == null && response != null) {
+        if (exception == null && response != null) {
             Exception exception = null;
             JsonObject json = null;
 
@@ -112,7 +112,7 @@ class TokenRequestAsyncTask extends RequestAsyncTask {
             }
             mFuture.setException(new MobileServiceException(AUTHENTICATION_ERROR_MESSAGE, exception, response));
         } else {
-            mFuture.setException(new MobileServiceException(AUTHENTICATION_ERROR_MESSAGE, mTaskException));
+            mFuture.setException(new MobileServiceException(AUTHENTICATION_ERROR_MESSAGE, exception));
         }
     }
 }

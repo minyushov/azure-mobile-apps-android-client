@@ -565,10 +565,10 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
         new RequestAsyncTask(delete, mClient.createConnection()) {
             @Override
             protected void onPostExecute(ServiceFilterResponse result) {
-                if (mTaskException == null) {
+                if (exception == null) {
                     future.set(null);
                 } else {
-                    future.setException(transformHttpException(mTaskException));
+                    future.setException(transformHttpException(exception));
                 }
             }
         }.executeTask();
