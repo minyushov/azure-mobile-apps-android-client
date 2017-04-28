@@ -1,0 +1,26 @@
+apply plugin: 'com.android.application'
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+android {
+	compileSdkVersion 25
+	buildToolsVersion "25.0.3"
+
+	defaultConfig {
+		applicationId "com.sample"
+		minSdkVersion 19
+		targetSdkVersion 25
+		versionCode 1
+		versionName "1.0"
+
+		buildConfigField "String", "AZURE_API_KEY", "\"${properties.getProperty("azure.apikey")}\""
+		buildConfigField "String", "AZURE_HOST", "\"${properties.getProperty("azure.host")}\""
+		buildConfigField "String", "AZURE_TABLE", "\"${properties.getProperty("azure.table")}\""
+	}
+}
+
+dependencies {
+	compile project(':sdk')
+	compile 'com.android.support:appcompat-v7:25.3.1'
+}
