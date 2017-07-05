@@ -23,17 +23,18 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.http;
 
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
-import com.squareup.okhttp.internal.http.StatusLine;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.zip.GZIPInputStream;
+
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+
+import okhttp3.Headers;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okhttp3.internal.http.StatusLine;
 
 /**
  * ServiceFilterResponse implementation

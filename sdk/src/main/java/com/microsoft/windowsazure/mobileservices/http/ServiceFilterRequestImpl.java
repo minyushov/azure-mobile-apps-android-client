@@ -27,12 +27,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * ServiceFilterRequest implementation
@@ -200,7 +200,7 @@ public class ServiceFilterRequestImpl implements ServiceFilterRequest {
 
     @Override
     public String getUrl() {
-        return mRequest.httpUrl().toString();
+        return mRequest.url().toString();
     }
 
     @Override

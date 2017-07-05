@@ -23,9 +23,9 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.http;
 
-import com.squareup.okhttp.Headers;
-
 import java.net.URISyntaxException;
+
+import okhttp3.Headers;
 
 /**
  * Represents an HTTP request that can be manipulated by ServiceFilters

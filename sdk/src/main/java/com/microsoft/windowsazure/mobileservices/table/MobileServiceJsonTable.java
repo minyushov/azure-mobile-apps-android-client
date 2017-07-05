@@ -53,10 +53,10 @@ import com.microsoft.windowsazure.mobileservices.table.query.QueryODataWriter;
 import com.microsoft.windowsazure.mobileservices.table.query.QueryOrder;
 import com.microsoft.windowsazure.mobileservices.util.Pair;
 import com.microsoft.windowsazure.mobileservices.util.Uri;
-import com.squareup.okhttp.Headers;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.observers.DefaultObserver;
+import okhttp3.Headers;
 
 /**
  * Represents a Mobile Service Table, Provides operations on a table using a JsonObject
