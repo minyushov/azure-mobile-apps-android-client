@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-def libraryVersion = "3.2.4"
+def libraryVersion = "3.2.5"
 def libraryName = "azure-mobile-apps"
 def libraryGroup = "com.minyushov.android"
 def libraryRepo = "android"

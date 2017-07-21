@@ -69,9 +69,10 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     protected static final String SystemPropertiesQueryParameterName = "__systemproperties";
 
     /**
-     * The system property names with the correct prefix.
+     * The system property names
      */
     protected static final TreeMap<String, MobileServiceSystemProperty> SystemPropertyNameToEnum;
+    protected static final TreeMap<String, MobileServiceSystemProperty> SystemPropertyNameToEnumWithPrefix;
 
     static {
         SystemPropertyNameToEnum = new TreeMap<String, MobileServiceSystemProperty>(String.CASE_INSENSITIVE_ORDER);
@@ -79,6 +80,14 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
         SystemPropertyNameToEnum.put(getSystemPropertyString(MobileServiceSystemProperty.UpdatedAt), MobileServiceSystemProperty.UpdatedAt);
         SystemPropertyNameToEnum.put(getSystemPropertyString(MobileServiceSystemProperty.Version), MobileServiceSystemProperty.Version);
         SystemPropertyNameToEnum.put(getSystemPropertyString(MobileServiceSystemProperty.Deleted), MobileServiceSystemProperty.Deleted);
+    }
+
+    static {
+        SystemPropertyNameToEnumWithPrefix = new TreeMap<String, MobileServiceSystemProperty>(String.CASE_INSENSITIVE_ORDER);
+        SystemPropertyNameToEnumWithPrefix.put("__" + getSystemPropertyString(MobileServiceSystemProperty.CreatedAt), MobileServiceSystemProperty.CreatedAt);
+        SystemPropertyNameToEnumWithPrefix.put("__" + getSystemPropertyString(MobileServiceSystemProperty.UpdatedAt), MobileServiceSystemProperty.UpdatedAt);
+        SystemPropertyNameToEnumWithPrefix.put("__" + getSystemPropertyString(MobileServiceSystemProperty.Version), MobileServiceSystemProperty.Version);
+        SystemPropertyNameToEnumWithPrefix.put("__" + getSystemPropertyString(MobileServiceSystemProperty.Deleted), MobileServiceSystemProperty.Deleted);
     }
 
     /**
@@ -147,7 +156,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
         boolean haveCloned = false;
 
         for (Entry<String, JsonElement> property : instance.entrySet()) {
-            if (SystemPropertyNameToEnum.containsKey(property.getKey())) {
+            if (SystemPropertyNameToEnumWithPrefix.containsKey(property.getKey())) {
                 // We don't want to alter the original JsonObject passed in by
                 // the caller
                 // so if we find a system property to remove, we have to clone
