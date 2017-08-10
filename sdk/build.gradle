@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-def libraryVersion = "3.2.5"
+def libraryVersion = "3.2.6"
 def libraryName = "azure-mobile-apps"
 def libraryGroup = "com.minyushov.android"
 def libraryRepo = "android"
@@ -24,7 +24,7 @@ bintray {
 	key = properties.getProperty("bintray.apikey")
 
 	configurations = ['archives']
-	dryRun = true
+	dryRun = false
 
 	pkg {
 		repo = libraryRepo
@@ -91,7 +91,7 @@ sourceCompatibility = '1.7'
 
 dependencies {
 	compile "com.google.code.gson:gson:2.8.1"
-	compile "com.google.guava:guava:20.0"
+	compile "com.google.guava:guava:23.0-android"
 	compile "com.squareup.okhttp3:okhttp:3.8.1"
 	compile "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 }
