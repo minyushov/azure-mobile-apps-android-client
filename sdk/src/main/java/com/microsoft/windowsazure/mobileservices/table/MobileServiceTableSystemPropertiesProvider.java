@@ -32,12 +32,12 @@ public interface MobileServiceTableSystemPropertiesProvider {
 	/**
 	 * Returns the set of enabled System Properties
 	 */
-	public EnumSet<MobileServiceSystemProperty> getSystemProperties();
+	EnumSet<MobileServiceSystemProperty> getSystemProperties();
 
 	/**
 	 * Sets the set of enabled system properties
 	 */
-	public void setSystemProperties(EnumSet<MobileServiceSystemProperty> systemProperties);
+	void setSystemProperties(EnumSet<MobileServiceSystemProperty> systemProperties);
 
 	/**
 	 * Adds the tables requested system properties to the parameters collection.

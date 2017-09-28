@@ -35,7 +35,5 @@ public interface TableDeleteCallback {
      * @param exception An exception representing the error, in case there was one
      * @param response  Response object
      */
-    public void onCompleted(Exception exception, ServiceFilterResponse response);
-
-    ;
+    void onCompleted(Exception exception, ServiceFilterResponse response);
 }

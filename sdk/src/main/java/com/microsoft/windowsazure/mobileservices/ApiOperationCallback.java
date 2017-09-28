@@ -39,5 +39,5 @@ public interface ApiOperationCallback<E> {
      * @param exception An exception representing the error, in case there was one
      * @param response  Response object
      */
-    public void onCompleted(E result, Exception exception, ServiceFilterResponse response);
+    void onCompleted(E result, Exception exception, ServiceFilterResponse response);
 }

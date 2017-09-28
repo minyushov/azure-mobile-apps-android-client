@@ -36,5 +36,5 @@ public interface ServiceFilterResponseCallback {
      * @param response  The response to process
      * @param exception An exception representing the error, in case there was one
      */
-    public void onResponse(ServiceFilterResponse response, Exception exception);
+    void onResponse(ServiceFilterResponse response, Exception exception);
 }

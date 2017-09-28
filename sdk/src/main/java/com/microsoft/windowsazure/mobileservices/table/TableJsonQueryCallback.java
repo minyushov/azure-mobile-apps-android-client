@@ -37,6 +37,5 @@ public interface TableJsonQueryCallback {
      * @param exception An exception representing the error, in case there was one
      * @param response  Response object
      */
-    public void onCompleted(JsonElement result, Exception exception, ServiceFilterResponse response);
-
+    void onCompleted(JsonElement result, Exception exception, ServiceFilterResponse response);
 }

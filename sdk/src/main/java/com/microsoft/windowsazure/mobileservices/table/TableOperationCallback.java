@@ -38,5 +38,5 @@ public interface TableOperationCallback<E> {
      * @param exception An exception representing the error, in case there was one
      * @param response  Response object
      */
-    public void onCompleted(E entity, Exception exception, ServiceFilterResponse response);
+    void onCompleted(E entity, Exception exception, ServiceFilterResponse response);
 }

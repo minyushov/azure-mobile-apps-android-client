@@ -23,15 +23,14 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.table;
 
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
-
 import java.util.List;
+
+import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 
 /**
  * Callback used after a query is executed
  */
 public interface TableQueryCallback<E> {
-
     /**
      * Method to call if the operation finishes successfully
      *
@@ -40,5 +39,5 @@ public interface TableQueryCallback<E> {
      * @param exception An exception representing the error, in case there was one
      * @param response  Response object
      */
-    public void onCompleted(List<E> result, int count, Exception exception, ServiceFilterResponse response);
+    void onCompleted(List<E> result, int count, Exception exception, ServiceFilterResponse response);
 }
