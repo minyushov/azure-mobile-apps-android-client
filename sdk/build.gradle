@@ -1,12 +1,12 @@
 plugins {
-	id "com.github.dcendents.android-maven" version "1.5"
+	id "com.github.dcendents.android-maven" version "2.0"
 	id "com.jfrog.bintray" version "1.7.3"
 }
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-def libraryVersion = "3.2.6"
+def libraryVersion = "3.2.7"
 def libraryName = "azure-mobile-apps"
 def libraryGroup = "com.minyushov.android"
 def libraryRepo = "android"
@@ -86,13 +86,15 @@ publishing {
 	}
 }
 
-targetCompatibility = '1.7'
-sourceCompatibility = '1.7'
+compileJava {
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
+}
 
 dependencies {
-	compile "com.google.code.gson:gson:2.8.1"
-	compile "com.google.guava:guava:23.0-android"
-	compile "com.squareup.okhttp3:okhttp:3.8.1"
+	compile "com.google.guava:guava:$guavaVersion"
+	compile "com.google.code.gson:gson:$gsonVersion"
+	compile "com.squareup.okhttp3:okhttp:$okhttpVersion"
 	compile "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
 }
 
