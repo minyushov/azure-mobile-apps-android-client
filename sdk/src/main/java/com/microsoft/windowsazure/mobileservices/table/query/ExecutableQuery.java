@@ -26,11 +26,11 @@ package com.microsoft.windowsazure.mobileservices.table.query;
 import java.util.Date;
 import java.util.List;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
-import com.microsoft.windowsazure.mobileservices.table.TableQueryCallback;
 import com.microsoft.windowsazure.mobileservices.util.Pair;
+
+import io.reactivex.Single;
 
 /**
  * Class that represents a query to a specific MobileServiceTable instance
@@ -86,18 +86,8 @@ public final class ExecutableQuery<E> implements Query {
     /**
      * Executes the query
      */
-    public ListenableFuture<MobileServiceList<E>> execute() {
-        return this.mTable.execute(this);
-    }
-
-    /**
-     * Executes the query
-     *
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #execute()} instead
-     */
-    public void execute(final TableQueryCallback<E> callback) {
-        mTable.execute(this, callback);
+    public Single<MobileServiceList<E>> execute() {
+        return mTable.execute(this);
     }
 
     @Override

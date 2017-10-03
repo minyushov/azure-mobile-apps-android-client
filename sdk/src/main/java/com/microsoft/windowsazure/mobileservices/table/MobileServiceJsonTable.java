@@ -30,10 +30,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -54,8 +50,8 @@ import com.microsoft.windowsazure.mobileservices.table.query.QueryOrder;
 import com.microsoft.windowsazure.mobileservices.util.Pair;
 import com.microsoft.windowsazure.mobileservices.util.Uri;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.observers.DefaultObserver;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import okhttp3.Headers;
 
 /**
@@ -94,31 +90,16 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
 
     /**
      * Executes a query to retrieve all the table rows
-     *
-     * @throws MobileServiceException
      */
-    public ListenableFuture<JsonElement> execute() throws MobileServiceException {
-        return this.executeInternal();
+    public Single<JsonElement> execute() {
+        return executeInternal();
     }
 
     /**
      * Executes a query to retrieve all the table rows
-     *
-     * @throws MobileServiceException
      */
-    protected ListenableFuture<JsonElement> executeInternal() throws MobileServiceException {
-        return this.execute(this.where());
-    }
-
-    /**
-     * Executes the query
-     *
-     * @param callback Callback to invoke when the operation is completed
-     * @throws MobileServiceException
-     * @deprecated use {@link #execute()} instead
-     */
-    public void execute(final TableJsonQueryCallback callback) throws MobileServiceException {
-        this.where().execute(callback);
+    protected Single<JsonElement> executeInternal() {
+        return execute(where());
     }
 
     /**
@@ -126,10 +107,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *
      * @param query The query used to retrieve the rows
      */
-    public ListenableFuture<JsonElement> execute(final Query query) {
-        final SettableFuture<JsonElement> future = SettableFuture.create();
-
-        String url = null;
+    public Single<JsonElement> execute(Query query) {
+        String url;
         try {
             String filtersUrl = QueryODataWriter.getRowFilter(query);
             url = mClient.getAppUrl().toString() + TABLES_URL + URLEncoder.encode(mTableName, MobileServiceClient.UTF8_ENCODING);
@@ -144,8 +123,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
                 }
             }
         } catch (UnsupportedEncodingException e) {
-            future.setException(e);
-            return future;
+            return Single.error(e);
         }
 
         EnumSet<MobileServiceFeatures> features = mFeatures.clone();
@@ -164,80 +142,34 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *
      * @param nextLink The Next Link to make the request
      */
-    public ListenableFuture<JsonElement> execute(final String nextLink) {
-        final SettableFuture<JsonElement> future = SettableFuture.create();
-
+    public Single<JsonElement> execute(String nextLink) {
         return executeUrlQuery(nextLink, mFeatures.clone());
     }
 
     /**
-     * Make the request to the mobile service witht the query URL
+     * Make the request to the mobile service with the query URL
      *
      * @param url The query url
      * @param features The features used in the request
      */
-    private ListenableFuture<JsonElement> executeUrlQuery(final String url, EnumSet<MobileServiceFeatures> features) {
-        final SettableFuture<JsonElement> future = SettableFuture.create();
+    private Single<JsonElement> executeUrlQuery(String url, EnumSet<MobileServiceFeatures> features) {
+        return executeGetRecords(url, features)
+                .map(response -> {
+                    String nextLinkHeaderValue = getHeaderValue(response.second.getHeaders(), "Link");
 
-        ListenableFuture<Pair<JsonElement, ServiceFilterResponse>> internalFuture = executeGetRecords(url, features);
+                    if (nextLinkHeaderValue != null){
+                        JsonObject jsonResult = new JsonObject();
 
-        Futures.addCallback(internalFuture, new FutureCallback<Pair<JsonElement, ServiceFilterResponse>>() {
-            @Override
-            public void onFailure(Throwable exc) {
-                future.setException(exc);
-            }
+                        String nextLink = nextLinkHeaderValue.replace("; rel=next", "");
 
-            @Override
-            public void onSuccess(Pair<JsonElement, ServiceFilterResponse> result) {
+                        jsonResult.addProperty("nextLink", nextLink);
+                        jsonResult.add("results", response.first);
 
-                String nextLinkHeaderValue = getHeaderValue(result.second.getHeaders(), "Link");
-
-                if (nextLinkHeaderValue != null){
-
-                    JsonObject jsonResult = new JsonObject();
-
-                    String nextLink = nextLinkHeaderValue.replace("; rel=next", "");
-
-                    jsonResult.addProperty("nextLink", nextLink);
-                    jsonResult.add("results", result.first);
-
-                    future.set(jsonResult);
-
-                }
-                else {
-                    future.set(result.first);
-                }
-            }
-        });
-
-        return future;
-    }
-
-    /**
-     * Retrieves a set of rows from the table using a query
-     *
-     * @param query    The query used to retrieve the rows
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #execute(Query query)} instead
-     */
-    public void execute(final Query query, final TableJsonQueryCallback callback) {
-        ListenableFuture<JsonElement> executeFuture = execute(query);
-
-        Futures.addCallback(executeFuture, new FutureCallback<JsonElement>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    callback.onCompleted(null, (Exception) exception, MobileServiceException.getServiceResponse(exception));
-                } else {
-                    callback.onCompleted(null, new Exception(exception), MobileServiceException.getServiceResponse(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(JsonElement result) {
-                callback.onCompleted(result, null, null);
-            }
-        });
+                        return jsonResult;
+                    } else {
+                        return response.first;
+                    }
+                });
     }
 
     /**
@@ -343,19 +275,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *
      * @param id The id of the row
      */
-    public ListenableFuture<JsonObject> lookUp(Object id) {
-        return this.lookUp(id, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Looks up a row in the table and retrieves its JSON value.
-     *
-     * @param id       The id of the row
-     * @param callback Callback to invoke after the operation is completed
-     * @deprecated use {@link #lookUp(Object id)} instead
-     */
-    public void lookUp(Object id, final TableJsonOperationCallback callback) {
-        this.lookUp(id, null, callback);
+    public Single<JsonObject> lookUp(Object id) {
+        return lookUp(id, null);
     }
 
     /**
@@ -365,14 +286,11 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      * @param parameters A list of user-defined parameters and values to include in the
      *                   request URI query string
      */
-    public ListenableFuture<JsonObject> lookUp(Object id, List<Pair<String, String>> parameters) {
-        final SettableFuture<JsonObject> future = SettableFuture.create();
-
+    public Single<JsonObject> lookUp(Object id, List<Pair<String, String>> parameters) {
         try {
             validateId(id);
         } catch (Exception e) {
-            future.setException(e);
-            return future;
+            return Single.error(e);
         }
 
         String url;
@@ -397,60 +315,20 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
 
         url = uriBuilder.build().toString();
 
-        ListenableFuture<Pair<JsonElement, ServiceFilterResponse>> internalFuture = executeGetRecords(url, features);
+        return executeGetRecords(url, features)
+                .map(response -> {
+                    if (response.first.isJsonArray()) {
+                        // empty result
+                        throw new MobileServiceException("A record with the specified Id cannot be found", response.second);
+                    } else {
+                        // Lookup result
+                        JsonObject patchedJson = response.first.getAsJsonObject();
 
-        Futures.addCallback(internalFuture, new FutureCallback<Pair<JsonElement, ServiceFilterResponse>>() {
-            @Override
-            public void onFailure(Throwable exc) {
-                future.setException(exc);
-            }
+                        updateVersionFromETag(response.second, patchedJson);
 
-            @Override
-            public void onSuccess(Pair<JsonElement, ServiceFilterResponse> results) {
-                if (results.first.isJsonArray()) {
-                    // empty result
-                    future.setException(new MobileServiceException("A record with the specified Id cannot be found", results.second));
-                } else {
-                    // Lookup result
-                    JsonObject patchedJson = results.first.getAsJsonObject();
-
-                    updateVersionFromETag(results.second, patchedJson);
-
-                    future.set(patchedJson);
-                }
-            }
-        });
-
-        return future;
-    }
-
-    /**
-     * Looks up a row in the table and retrieves its JSON value.
-     *
-     * @param id         The id of the row
-     * @param parameters A list of user-defined parameters and values to include in the
-     *                   request URI query string
-     * @param callback   Callback to invoke after the operation is completed
-     * @deprecated use {@link #lookUp(Object id, List parameters)} instead
-     */
-    public void lookUp(Object id, List<Pair<String, String>> parameters, final TableJsonOperationCallback callback) {
-        ListenableFuture<JsonObject> lookUpFuture = lookUp(id, parameters);
-
-        Futures.addCallback(lookUpFuture, new FutureCallback<JsonObject>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    callback.onCompleted(null, (Exception) exception, MobileServiceException.getServiceResponse(exception));
-                } else {
-                    callback.onCompleted(null, new Exception(exception), MobileServiceException.getServiceResponse(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(JsonObject result) {
-                callback.onCompleted(result, null, null);
-            }
-        });
+                        return patchedJson;
+                    }
+                });
     }
 
     /**
@@ -460,21 +338,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      * @throws IllegalArgumentException if the element has an id property set with a numeric value
      *                                  other than default (0), or an invalid string value
      */
-    public ListenableFuture<JsonObject> insert(final JsonObject element) {
-        return this.insert(element, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Inserts a JsonObject into a Mobile Service table
-     *
-     * @param element  The JsonObject to insert
-     * @param callback Callback to invoke when the operation is completed
-     * @throws IllegalArgumentException if the element has an id property set with a numeric value
-     *                                  other than default (0), or an invalid string value
-     * @deprecated use {@link #insert(JsonObject element)} instead
-     */
-    public void insert(final JsonObject element, TableJsonOperationCallback callback) {
-        this.insert(element, null, callback);
+    public Single<JsonObject> insert(JsonObject element) {
+        return insert(element, null);
     }
 
     /**
@@ -486,14 +351,11 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      * @throws IllegalArgumentException if the element has an id property set with a numeric value
      *                                  other than default (0), or an invalid string value
      */
-    public ListenableFuture<JsonObject> insert(final JsonObject element, List<Pair<String, String>> parameters) {
-        final SettableFuture<JsonObject> future = SettableFuture.create();
-
+    public Single<JsonObject> insert(JsonObject element, List<Pair<String, String>> parameters) {
         try {
             validateIdOnInsert(element);
         } catch (Exception e) {
-            future.setException(e);
-            return future;
+            return Single.error(e);
         }
 
         String content = element.toString();
@@ -505,61 +367,16 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
 
         parameters = addSystemProperties(mSystemProperties, parameters);
 
-        ListenableFuture<Pair<JsonObject, ServiceFilterResponse>> internalFuture = this.executeTableOperation(TABLES_URL + mTableName, content, HttpConstants.PostMethod, null, parameters, features);
-
-        Futures.addCallback(internalFuture, new FutureCallback<Pair<JsonObject, ServiceFilterResponse>>() {
-            @Override
-            public void onFailure(Throwable exc) {
-                future.setException(exc);
-            }
-
-            @Override
-            public void onSuccess(Pair<JsonObject, ServiceFilterResponse> result) {
-
-                if (result == null) {
-                    future.set(null);
-                } else {
-                    JsonObject patchedJson = patchOriginalEntityWithResponseEntity(element, result.first);
-
-                    updateVersionFromETag(result.second, patchedJson);
-
-                    future.set(patchedJson);
-                }
-            }
-        });
-
-        return future;
-    }
-
-    /**
-     * Inserts a JsonObject into a Mobile Service Table
-     *
-     * @param element    The JsonObject to insert
-     * @param parameters A list of user-defined parameters and values to include in the
-     *                   request URI query string
-     * @param callback   Callback to invoke when the operation is completed
-     * @throws IllegalArgumentException if the element has an id property set with a numeric value
-     *                                  other than default (0), or an invalid string value
-     * @deprecated use {@link #insert(JsonObject element, List parameters)} instead
-     */
-    public void insert(final JsonObject element, List<Pair<String, String>> parameters, final TableJsonOperationCallback callback) {
-        ListenableFuture<JsonObject> insertFuture = insert(element, parameters);
-
-        Futures.addCallback(insertFuture, new FutureCallback<JsonObject>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    callback.onCompleted(null, (Exception) exception, MobileServiceException.getServiceResponse(exception));
-                } else {
-                    callback.onCompleted(null, new Exception(exception), MobileServiceException.getServiceResponse(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(JsonObject result) {
-                callback.onCompleted(result, null, null);
-            }
-        });
+        return executeTableOperation(TABLES_URL + mTableName, content, HttpConstants.PostMethod, null, parameters, features)
+                .map(response -> {
+                    if (response == null) {
+                        return new JsonObject();
+                    } else {
+                        JsonObject patchedJson = patchOriginalEntityWithResponseEntity(element, response.first);
+                        updateVersionFromETag(response.second, patchedJson);
+                        return patchedJson;
+                    }
+                });
     }
 
     /**
@@ -567,19 +384,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *
      * @param element The JsonObject to update
      */
-    public ListenableFuture<JsonObject> update(final JsonObject element) {
-        return this.update(element, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Updates an element from a Mobile Service Table
-     *
-     * @param element  The JsonObject to update
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #update(JsonObject element)} instead
-     */
-    public void update(final JsonObject element, final TableJsonOperationCallback callback) {
-        this.update(element, null, callback);
+    public Single<JsonObject> update(JsonObject element) {
+        return update(element, null);
     }
 
     /**
@@ -589,18 +395,15 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      * @param parameters A list of user-defined parameters and values to include in the
      *                   request URI query string
      */
-    public ListenableFuture<JsonObject> update(final JsonObject element, List<Pair<String, String>> parameters) {
-        final SettableFuture<JsonObject> future = SettableFuture.create();
-
-        Object id = null;
+    public Single<JsonObject> update(JsonObject element, List<Pair<String, String>> parameters) {
+        Object id;
         String version = null;
-        String content = null;
+        String content;
 
         try {
             id = validateId(element);
         } catch (Exception e) {
-            future.setException(e);
-            return future;
+            return Single.error(e);
         }
 
         if (!isNumericType(id)) {
@@ -619,59 +422,17 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
 
         List<Pair<String, String>> requestHeaders = null;
         if (version != null) {
-            requestHeaders = new ArrayList<Pair<String, String>>();
-            requestHeaders.add(new Pair<String, String>("If-Match", getEtagFromValue(version)));
+            requestHeaders = new ArrayList<>();
+            requestHeaders.add(new Pair<>("If-Match", getEtagFromValue(version)));
             features.add(MobileServiceFeatures.OpportunisticConcurrency);
         }
 
-        ListenableFuture<Pair<JsonObject, ServiceFilterResponse>> internalFuture = this.executeTableOperation(TABLES_URL + mTableName + "/" + id.toString(), content, HttpConstants.PatchMethod, requestHeaders, parameters, features);
-
-        Futures.addCallback(internalFuture, new FutureCallback<Pair<JsonObject, ServiceFilterResponse>>() {
-            @Override
-            public void onFailure(Throwable exc) {
-                future.setException(exc);
-            }
-
-            @Override
-            public void onSuccess(Pair<JsonObject, ServiceFilterResponse> result) {
-                JsonObject patchedJson = patchOriginalEntityWithResponseEntity(element, result.first);
-
-                updateVersionFromETag(result.second, patchedJson);
-
-                future.set(patchedJson);
-            }
-        });
-
-        return future;
-    }
-
-    /**
-     * Updates an element from a Mobile Service Table
-     *
-     * @param element    The JsonObject to update
-     * @param parameters A list of user-defined parameters and values to include in the
-     *                   request URI query string
-     * @param callback   Callback to invoke when the operation is completed
-     * @deprecated use {@link #update(com.google.gson.JsonObject element, List parameters)} instead
-     */
-    public void update(final JsonObject element, List<Pair<String, String>> parameters, final TableJsonOperationCallback callback) {
-        ListenableFuture<JsonObject> updateFuture = update(element, parameters);
-
-        Futures.addCallback(updateFuture, new FutureCallback<JsonObject>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    callback.onCompleted(null, (Exception) exception, MobileServiceException.getServiceResponse(exception));
-                } else {
-                    callback.onCompleted(null, new Exception(exception), MobileServiceException.getServiceResponse(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(JsonObject result) {
-                callback.onCompleted(result, null, null);
-            }
-        });
+        return executeTableOperation(TABLES_URL + mTableName + "/" + id.toString(), content, HttpConstants.PatchMethod, requestHeaders, parameters, features)
+                .map(response -> {
+                    JsonObject patchedJson = patchOriginalEntityWithResponseEntity(element, response.first);
+                    updateVersionFromETag(response.second, patchedJson);
+                    return patchedJson;
+                });
     }
 
     /**
@@ -679,19 +440,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *
      * @param element The JsonObject to delete
      */
-    public ListenableFuture<Void> delete(JsonObject element) {
-        return this.delete(element, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Delete an element from a Mobile Service Table
-     *
-     * @param element  The JsonObject to delete
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #update(JsonObject element)} instead
-     */
-    public void delete(JsonObject element, TableDeleteCallback callback) {
-        this.delete(element, null, callback);
+    public Completable delete(JsonObject element) {
+        return delete(element, null);
     }
 
     /**
@@ -701,20 +451,16 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      * @param parameters A list of user-defined parameters and values to include in the
      *                   request URI query string
      */
-    public ListenableFuture<Void> delete(JsonObject element, List<Pair<String, String>> parameters) {
-
+    public Completable delete(JsonObject element, List<Pair<String, String>> parameters) {
         validateId(element);
 
-        final SettableFuture<Void> future = SettableFuture.create();
-
-        Object id = null;
+        Object id;
         String version = null;
 
         try {
             id = validateId(element);
         } catch (Exception e) {
-            future.setException(e);
-            return future;
+            return Completable.error(e);
         }
 
         if (!isNumericType(id)) {
@@ -730,55 +476,13 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
 
         List<Pair<String, String>> requestHeaders = null;
         if (version != null) {
-            requestHeaders = new ArrayList<Pair<String, String>>();
-            requestHeaders.add(new Pair<String, String>("If-Match", getEtagFromValue(version)));
+            requestHeaders = new ArrayList<>();
+            requestHeaders.add(new Pair<>("If-Match", getEtagFromValue(version)));
             features.add(MobileServiceFeatures.OpportunisticConcurrency);
         }
 
-        ListenableFuture<Pair<JsonObject, ServiceFilterResponse>> internalFuture = this.executeTableOperation(TABLES_URL + mTableName + "/" + id.toString(), null, HttpConstants.DeleteMethod, requestHeaders, parameters, features);
-
-        Futures.addCallback(internalFuture, new FutureCallback<Pair<JsonObject, ServiceFilterResponse>>() {
-            @Override
-            public void onFailure(Throwable exc) {
-                future.setException(exc);
-            }
-
-            @Override
-            public void onSuccess(Pair<JsonObject, ServiceFilterResponse> result) {
-                future.set(null);
-            }
-        });
-
-        return future;
-    }
-
-    /**
-     * Delete an element from a Mobile Service Table
-     *
-     * @param element    The JsonObject to undelete
-     * @param parameters A list of user-defined parameters and values to include in the
-     *                   request URI query string
-     * @param callback   Callback to invoke when the operation is completed
-     * @deprecated use {@link #update(com.google.gson.JsonObject element, java.util.List parameters)} instead
-     */
-    public void delete(final JsonObject element, List<Pair<String, String>> parameters, final TableDeleteCallback callback) {
-        ListenableFuture<Void> deleteFuture = delete(element, parameters);
-
-        Futures.addCallback(deleteFuture, new FutureCallback<Void>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    callback.onCompleted((Exception) exception, MobileServiceException.getServiceResponse(exception));
-                } else {
-                    callback.onCompleted(new Exception(exception), MobileServiceException.getServiceResponse(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(Void v) {
-                callback.onCompleted(null, null);
-            }
-        });
+        return executeTableOperation(TABLES_URL + mTableName + "/" + id.toString(), null, HttpConstants.DeleteMethod, requestHeaders, parameters, features)
+                .toCompletable();
     }
 
     /**
@@ -786,19 +490,8 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *
      * @param element The JsonObject to update
      */
-    public ListenableFuture<JsonObject> undelete(final JsonObject element) {
-        return this.undelete(element, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Undelete an element from a Mobile Service Table
-     *
-     * @param element  The JsonObject to update
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #update(com.google.gson.JsonObject element)} instead
-     */
-    public void undelete(final JsonObject element, final TableJsonOperationCallback callback) {
-        this.undelete(element, null, callback);
+    public Single<JsonObject> undelete(JsonObject element) {
+        return undelete(element, null);
     }
 
     /**
@@ -808,17 +501,14 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      * @param parameters A list of user-defined parameters and values to include in the
      *                   request URI query string
      */
-    public ListenableFuture<JsonObject> undelete(final JsonObject element, List<Pair<String, String>> parameters) {
-        final SettableFuture<JsonObject> future = SettableFuture.create();
-
-        Object id = null;
+    public Single<JsonObject> undelete(JsonObject element, List<Pair<String, String>> parameters) {
+        Object id;
         String version = null;
 
         try {
             id = validateId(element);
         } catch (Exception e) {
-            future.setException(e);
-            return future;
+            return Single.error(e);
         }
 
         if (!isNumericType(id)) {
@@ -834,59 +524,17 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
 
         List<Pair<String, String>> requestHeaders = null;
         if (version != null) {
-            requestHeaders = new ArrayList<Pair<String, String>>();
-            requestHeaders.add(new Pair<String, String>("If-Match", getEtagFromValue(version)));
+            requestHeaders = new ArrayList<>();
+            requestHeaders.add(new Pair<>("If-Match", getEtagFromValue(version)));
             features.add(MobileServiceFeatures.OpportunisticConcurrency);
         }
 
-        ListenableFuture<Pair<JsonObject, ServiceFilterResponse>> internalFuture = this.executeTableOperation(TABLES_URL + mTableName + "/" + id.toString(), null, HttpConstants.PostMethod, requestHeaders, parameters, features);
-
-        Futures.addCallback(internalFuture, new FutureCallback<Pair<JsonObject, ServiceFilterResponse>>() {
-            @Override
-            public void onFailure(Throwable exc) {
-                future.setException(exc);
-            }
-
-            @Override
-            public void onSuccess(Pair<JsonObject, ServiceFilterResponse> result) {
-                JsonObject patchedJson = patchOriginalEntityWithResponseEntity(element, result.first);
-
-                updateVersionFromETag(result.second, patchedJson);
-
-                future.set(patchedJson);
-            }
-        });
-
-        return future;
-    }
-
-    /**
-     * Undeete an element from a Mobile Service Table
-     *
-     * @param element    The JsonObject to undelete
-     * @param parameters A list of user-defined parameters and values to include in the
-     *                   request URI query string
-     * @param callback   Callback to invoke when the operation is completed
-     * @deprecated use {@link #update(com.google.gson.JsonObject element, List parameters)} instead
-     */
-    public void undelete(final JsonObject element, List<Pair<String, String>> parameters, final TableJsonOperationCallback callback) {
-        ListenableFuture<JsonObject> undeleteFuture = undelete(element, parameters);
-
-        Futures.addCallback(undeleteFuture, new FutureCallback<JsonObject>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    callback.onCompleted(null, (Exception) exception, MobileServiceException.getServiceResponse(exception));
-                } else {
-                    callback.onCompleted(null, new Exception(exception), MobileServiceException.getServiceResponse(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(JsonObject result) {
-                callback.onCompleted(result, null, null);
-            }
-        });
+        return executeTableOperation(TABLES_URL + mTableName + "/" + id.toString(), null, HttpConstants.PostMethod, requestHeaders, parameters, features)
+                .map(response -> {
+                    JsonObject patchedJson = patchOriginalEntityWithResponseEntity(element, response.first);
+                    updateVersionFromETag(response.second, patchedJson);
+                    return patchedJson;
+                });
     }
 
     /**
@@ -900,50 +548,36 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *                       request URI query string
      * @param features       The features used in the request
      */
-    private ListenableFuture<Pair<JsonObject, ServiceFilterResponse>> executeTableOperation(
+    private Single<Pair<JsonObject, ServiceFilterResponse>> executeTableOperation(
             String path, String content, String httpMethod, List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters, EnumSet<MobileServiceFeatures> features) {
-        final SettableFuture<Pair<JsonObject, ServiceFilterResponse>> future = SettableFuture.create();
 
         MobileServiceHttpClient httpClient = new MobileServiceHttpClient(mClient);
         if (requestHeaders == null) {
-            requestHeaders = new ArrayList<Pair<String, String>>();
+            requestHeaders = new ArrayList<>();
         }
 
         if (content != null) {
-            requestHeaders.add(new Pair<String, String>(HttpConstants.ContentType, MobileServiceConnection.JSON_CONTENTTYPE));
+            requestHeaders.add(new Pair<>(HttpConstants.ContentType, MobileServiceConnection.JSON_CONTENTTYPE));
         }
 
-        ListenableFuture<ServiceFilterResponse> internalFuture = httpClient.request(path, content, httpMethod, requestHeaders, parameters, features);
-
-        Futures.addCallback(internalFuture, new FutureCallback<ServiceFilterResponse>() {
-            @Override
-            public void onFailure(Throwable exc) {
-                future.setException(transformHttpException(exc));
-            }
-
-            @Override
-            public void onSuccess(ServiceFilterResponse result) {
-                String content = null;
-                content = result.getContent();
-
-                if (content == null) {
-                    future.set(null);
-                } else {
-
-                    if (content != null && !content.isEmpty()){
-                        JsonElement json = new JsonParser().parse(content);
-                        future.set(json.isJsonObject()
-                                ? Pair.create(json.getAsJsonObject(), result)
-                                : null);
+        return httpClient
+                .request(path, content, httpMethod, requestHeaders, parameters, features)
+                .map(response -> {
+                    String responseContent = response.getContent();
+                    if (responseContent == null) {
+                        return new Pair<JsonObject, ServiceFilterResponse>(null, null);
                     } else {
-                        future.set(null);
+                        if (!responseContent.isEmpty()){
+                            JsonElement json = new JsonParser().parse(responseContent);
+                            return json.isJsonObject() ?
+                                    Pair.create(json.getAsJsonObject(), response) :
+                                    new Pair<JsonObject, ServiceFilterResponse>(null, null);
+                        } else {
+                            return new Pair<JsonObject, ServiceFilterResponse>(null, null);
+                        }
                     }
-
-                }
-            }
-        });
-
-        return future;
+                })
+                .onErrorResumeNext(throwable -> Single.error(transformHttpException(throwable)));
     }
 
     /**
@@ -952,9 +586,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      * @param url    The URL used to retrieve the rows
      * @param features The features used in this request
      */
-    private ListenableFuture<Pair<JsonElement, ServiceFilterResponse>> executeGetRecords(final String url, EnumSet<MobileServiceFeatures> features) {
-        final SettableFuture<Pair<JsonElement, ServiceFilterResponse>> future = SettableFuture.create();
-
+    private Single<Pair<JsonElement, ServiceFilterResponse>> executeGetRecords(String url, EnumSet<MobileServiceFeatures> features) {
         ServiceFilterRequest request = ServiceFilterRequestImpl.get(mClient.getOkHttpClientFactory(), url );
 
         String featuresHeader = MobileServiceFeatures.featuresToString(features);
@@ -963,42 +595,22 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
         }
 
         MobileServiceConnection conn = mClient.createConnection();
-        // Create AsyncTask to execute the request and parse the results
 
-        new Request(request, conn)
-                .request()
-                .subscribe(new DefaultObserver<ServiceFilterResponse>() {
-                    @Override
-                    public void onNext(@NonNull ServiceFilterResponse response) {
-                        JsonElement results = null;
-                        try {
-                            // Parse the results using the given Entity class
-                            String content = response.getContent();
-                            JsonElement json = new JsonParser().parse(content);
-
-                            results = json;
-
-                            future.set(Pair.create(results, response));
-                        } catch (Exception e) {
-                            future.setException(new MobileServiceException("Error while retrieving data from response.", e, response));
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable throwable) {
-                        future.setException(throwable);
-                    }
-
-                    @Override
-                    public void onComplete() {
+        return Request
+                .create(request, conn)
+                .map(response -> {
+                    try {
+                        // Parse the results using the given Entity class
+                        String content = response.getContent();
+                        JsonElement json = new JsonParser().parse(content);
+                        return Pair.create(json, response);
+                    } catch (Exception e) {
+                        throw new MobileServiceException("Error while retrieving data from response.", e, response);
                     }
                 });
-
-        return future;
     }
 
     private String getHeaderValue(Headers headers, String headerName) {
-
         if (headers == null) {
             return null;
         }
@@ -1011,7 +623,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
      *
      * @param json The JsonObject to modify
      */
-    private Object validateIdOnInsert(final JsonObject json) {
+    private Object validateIdOnInsert(JsonObject json) {
         // Remove id property if exists
         String[] idPropertyNames = new String[]{"id", "Id", "iD", "ID"};
 

@@ -31,10 +31,6 @@ import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -49,12 +45,11 @@ import com.microsoft.windowsazure.mobileservices.http.MobileServiceHttpClient;
 import com.microsoft.windowsazure.mobileservices.http.Request;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequest;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterRequestImpl;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.util.Pair;
 import com.microsoft.windowsazure.mobileservices.util.Uri;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.observers.DefaultObserver;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 
 abstract class MobileServiceTableBase implements MobileServiceTableSystemPropertiesProvider {
 
@@ -75,7 +70,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     protected static final TreeMap<String, MobileServiceSystemProperty> SystemPropertyNameToEnumWithPrefix;
 
     static {
-        SystemPropertyNameToEnum = new TreeMap<String, MobileServiceSystemProperty>(String.CASE_INSENSITIVE_ORDER);
+        SystemPropertyNameToEnum = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         SystemPropertyNameToEnum.put(getSystemPropertyString(MobileServiceSystemProperty.CreatedAt), MobileServiceSystemProperty.CreatedAt);
         SystemPropertyNameToEnum.put(getSystemPropertyString(MobileServiceSystemProperty.UpdatedAt), MobileServiceSystemProperty.UpdatedAt);
         SystemPropertyNameToEnum.put(getSystemPropertyString(MobileServiceSystemProperty.Version), MobileServiceSystemProperty.Version);
@@ -83,7 +78,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     }
 
     static {
-        SystemPropertyNameToEnumWithPrefix = new TreeMap<String, MobileServiceSystemProperty>(String.CASE_INSENSITIVE_ORDER);
+        SystemPropertyNameToEnumWithPrefix = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         SystemPropertyNameToEnumWithPrefix.put("__" + getSystemPropertyString(MobileServiceSystemProperty.CreatedAt), MobileServiceSystemProperty.CreatedAt);
         SystemPropertyNameToEnumWithPrefix.put("__" + getSystemPropertyString(MobileServiceSystemProperty.UpdatedAt), MobileServiceSystemProperty.UpdatedAt);
         SystemPropertyNameToEnumWithPrefix.put("__" + getSystemPropertyString(MobileServiceSystemProperty.Version), MobileServiceSystemProperty.Version);
@@ -455,19 +450,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
      *
      * @param id The entity id to delete
      */
-    public ListenableFuture<Void> delete(Integer id) {
-        return this.delete(id, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Deletes an entity from a Mobile Service Table
-     *
-     * @param id       The entity id to delete
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #delete(Integer Id)} instead
-     */
-    public void delete(Integer id, TableDeleteCallback callback) {
-        this.delete(id.toString(), null, callback);
+    public Completable delete(Integer id) {
+        return delete(id, null);
     }
 
     /**
@@ -477,7 +461,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
      * @param parameters A list of user-defined parameters and values to include in the
      *                   request URI query string
      */
-    public ListenableFuture<Void> delete(Integer id, List<Pair<String, String>> parameters) {
+    public Completable delete(Integer id, List<Pair<String, String>> parameters) {
         return delete(id.toString(), parameters);
     }
 
@@ -486,19 +470,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
      *
      * @param id The entity id to delete
      */
-    public ListenableFuture<Void> delete(Long id) {
-        return this.delete(id, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Deletes an entity from a Mobile Service Table
-     *
-     * @param id       The entity id to delete
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #delete(Long id)} instead
-     */
-    public void delete(Long id, TableDeleteCallback callback) {
-        this.delete(id.toString(), null, callback);
+    public Completable delete(Long id) {
+        return delete(id, null);
     }
 
     /**
@@ -508,7 +481,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
      * @param parameters A list of user-defined parameters and values to include in the
      *                   request URI query string
      */
-    public ListenableFuture<Void> delete(Long id, List<Pair<String, String>> parameters) {
+    public Completable delete(Long id, List<Pair<String, String>> parameters) {
         return delete(id.toString(), parameters);
     }
 
@@ -517,19 +490,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
      *
      * @param id The entity id to delete
      */
-    public ListenableFuture<Void> delete(String id) {
-        return this.delete(id, (List<Pair<String, String>>) null);
-    }
-
-    /**
-     * Deletes an entity from a Mobile Service Table
-     *
-     * @param id       The entity id to delete
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #delete(String id)} instead
-     */
-    public void delete(String id, TableDeleteCallback callback) {
-        this.delete(id, null, callback);
+    public Completable delete(String id) {
+        return delete(id, null);
     }
 
     /**
@@ -539,8 +501,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
      * @param parameters A list of user-defined parameters and values to include in the
      *                   request URI query string
      */
-    public ListenableFuture<Void> delete(String id, List<Pair<String, String>> parameters) {
-
+    public Completable delete(String id, List<Pair<String, String>> parameters) {
         validateId(id);
 
         // Create delete request
@@ -564,62 +525,17 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
             }
         }
 
-        final SettableFuture<Void> future = SettableFuture.create();
-
         delete = ServiceFilterRequestImpl.delete(mClient.getOkHttpClientFactory(), uriBuilder.build().toString());
 
         if (!features.isEmpty()) {
             delete.addHeader(MobileServiceHttpClient.X_ZUMO_FEATURES, MobileServiceFeatures.featuresToString(features));
         }
 
-        new Request(delete, mClient.createConnection())
-                .request()
-                .subscribe(new DefaultObserver<ServiceFilterResponse>() {
-                    @Override
-                    public void onNext(@NonNull ServiceFilterResponse serviceFilterResponse) {
-                        future.set(null);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable throwable) {
-                        future.setException(transformHttpException(throwable));
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                });
-
-        return future;
-    }
-
-    /**
-     * Deletes an entity from a Mobile Service Table using a given id
-     *
-     * @param id         The id of the entity to delete
-     * @param parameters A list of user-defined parameters and values to include in the
-     *                   request URI query string
-     * @param callback   Callback to invoke when the operation is completed
-     * @deprecated use {@link #delete(String id, List parameters)} instead
-     */
-    public void delete(String id, List<Pair<String, String>> parameters, final TableDeleteCallback callback) {
-        ListenableFuture<Void> deleteFuture = delete(id, parameters);
-
-        Futures.addCallback(deleteFuture, new FutureCallback<Void>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    callback.onCompleted((Exception) exception, MobileServiceException.getServiceResponse(exception));
-                } else {
-                    callback.onCompleted(new Exception(exception), MobileServiceException.getServiceResponse(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(Void v) {
-                callback.onCompleted(null, null);
-            }
-        });
+        return Single
+                .fromCallable(() -> Request
+                        .create(delete, mClient.createConnection())
+                        .onErrorResumeNext(throwable -> Single.error(transformHttpException(throwable))))
+                .toCompletable();
     }
 
     /**
@@ -1020,7 +936,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     public List<Pair<String, String>> addSystemProperties(EnumSet<MobileServiceSystemProperty> systemProperties, List<Pair<String, String>> parameters) {
         boolean containsSystemProperties = false;
 
-        List<Pair<String, String>> result = new ArrayList<Pair<String, String>>(parameters != null ? parameters.size() : 0);
+        List<Pair<String, String>> result = new ArrayList<>(parameters != null ? parameters.size() : 0);
 
         // Make sure we have a case-insensitive parameters list
         if (parameters != null) {
@@ -1036,7 +952,7 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
             String systemPropertiesString = getSystemPropertiesString(systemProperties);
 
             if (systemPropertiesString != null) {
-                result.add(new Pair<String, String>(SystemPropertiesQueryParameterName, systemPropertiesString));
+                result.add(new Pair<>(SystemPropertiesQueryParameterName, systemPropertiesString));
             }
         }
 

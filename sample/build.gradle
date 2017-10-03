@@ -18,6 +18,11 @@ android {
 		buildConfigField "String", "AZURE_HOST", "\"${properties.getProperty("azure.host")}\""
 		buildConfigField "String", "AZURE_TABLE", "\"${properties.getProperty("azure.table")}\""
 	}
+
+	compileOptions {
+		targetCompatibility 1.8
+		sourceCompatibility 1.8
+	}
 }
 
 dependencies {

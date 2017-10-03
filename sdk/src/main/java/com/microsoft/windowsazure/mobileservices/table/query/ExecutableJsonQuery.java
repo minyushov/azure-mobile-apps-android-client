@@ -26,11 +26,11 @@ package com.microsoft.windowsazure.mobileservices.table.query;
 import java.util.Date;
 import java.util.List;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import com.google.gson.JsonElement;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceJsonTable;
-import com.microsoft.windowsazure.mobileservices.table.TableJsonQueryCallback;
 import com.microsoft.windowsazure.mobileservices.util.Pair;
+
+import io.reactivex.Single;
 
 /**
  * Class that represents a query to a specific MobileServiceJsonTable instance
@@ -86,18 +86,8 @@ public final class ExecutableJsonQuery implements Query {
     /**
      * Executes the query
      */
-    public ListenableFuture<JsonElement> execute() {
-        return this.mTable.execute(this);
-    }
-
-    /**
-     * Executes the query
-     *
-     * @param callback Callback to invoke when the operation is completed
-     * @deprecated use {@link #execute()} instead
-     */
-    public void execute(final TableJsonQueryCallback callback) {
-        mTable.execute(this, callback);
+    public Single<JsonElement> execute() {
+        return mTable.execute(this);
     }
 
     @Override

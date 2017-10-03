@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import java.net.MalformedURLException;
-import java.util.concurrent.ExecutionException;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.table.query.ExecutableQuery;
@@ -35,12 +34,12 @@ public class MainActivity extends Activity {
 
 			int count = query
 					.execute()
-					.get()
+					.blockingGet()
 					.getTotalCount();
 
 			System.out.println("Received " + count + " attendee(s)");
 
-		} catch (MalformedURLException | InterruptedException | ExecutionException exception) {
+		} catch (MalformedURLException exception) {
 			exception.printStackTrace();
 		}
 	}

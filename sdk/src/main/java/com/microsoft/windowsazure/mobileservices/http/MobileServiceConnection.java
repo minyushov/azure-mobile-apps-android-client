@@ -23,13 +23,10 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.http;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceException;
-import com.microsoft.windowsazure.mobileservices.ServiceFilterResponseCallback;
+
+import io.reactivex.Single;
 
 /**
  * Class for handling communication with Microsoft Azure Mobile Services REST APIs
@@ -98,71 +95,38 @@ public class MobileServiceConnection {
      *
      * @param request The request to execute
      */
-    public ListenableFuture<ServiceFilterResponse> start(final ServiceFilterRequest request) {
+    public Single<ServiceFilterResponse> start(ServiceFilterRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Request can not be null");
         }
 
-        ServiceFilter filter = mClient.getServiceFilter();
         // Set the request's headers
         configureHeadersOnRequest(request);
-        return filter.handleRequest(request, new NextServiceFilterCallback() {
 
-            @Override
-            public ListenableFuture<ServiceFilterResponse> onNext(ServiceFilterRequest request) {
-                SettableFuture<ServiceFilterResponse> future = SettableFuture.create();
-                ServiceFilterResponse response = null;
+        return Single
+                .fromCallable(() -> {
+                    ServiceFilterResponse response = null;
+                    try {
+                        response = request.execute();
+                        int statusCode = response.getStatus().code;
 
-                try {
-                    response = request.execute();
-                    int statusCode = response.getStatus().code;
-
-                    // If the response has error throw exception
-                    if (statusCode < 200 || statusCode >= 300) {
-                        String responseContent = response.getContent();
-                        if (responseContent != null && !responseContent.trim().equals("")) {
-                            throw new MobileServiceException(responseContent, response);
-                        } else {
-                            throw new MobileServiceException(String.format("{'code': %d}", statusCode), response);
+                        // If the response has error throw exception
+                        if (statusCode < 200 || statusCode >= 300) {
+                            String responseContent = response.getContent();
+                            if (responseContent != null && !responseContent.trim().equals("")) {
+                                throw new MobileServiceException(responseContent, response);
+                            } else {
+                                throw new MobileServiceException(String.format("{'code': %d}", statusCode), response);
+                            }
                         }
+
+                        return response;
+                    } catch (MobileServiceException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        throw new MobileServiceException("Error while processing request.", e, response);
                     }
-
-                    future.set(response);
-                } catch (MobileServiceException e) {
-                    future.setException(e);
-                } catch (Exception e) {
-                    future.setException(new MobileServiceException("Error while processing request.", e, response));
-                }
-
-                return future;
-            }
-        });
-    }
-
-    /**
-     * Execute a request-response operation with a Mobile Service
-     *
-     * @param request          The request to execute
-     * @param responseCallback Callback to invoke after the request is executed
-     */
-    public void start(final ServiceFilterRequest request, final ServiceFilterResponseCallback responseCallback) {
-        ListenableFuture<ServiceFilterResponse> startFuture = start(request);
-
-        Futures.addCallback(startFuture, new FutureCallback<ServiceFilterResponse>() {
-            @Override
-            public void onFailure(Throwable exception) {
-                if (exception instanceof Exception) {
-                    responseCallback.onResponse(MobileServiceException.getServiceResponse(exception), (Exception) exception);
-                } else {
-                    responseCallback.onResponse(MobileServiceException.getServiceResponse(exception), new Exception(exception));
-                }
-            }
-
-            @Override
-            public void onSuccess(ServiceFilterResponse response) {
-                responseCallback.onResponse(response, null);
-            }
-        });
+                });
     }
 
     /**

@@ -28,15 +28,12 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceFeatures;
 import com.microsoft.windowsazure.mobileservices.util.Pair;
 import com.microsoft.windowsazure.mobileservices.util.Uri;
 
-import io.reactivex.annotations.NonNull;
-import io.reactivex.observers.DefaultObserver;
+import io.reactivex.Single;
 
 /**
  * Utility class which centralizes the HTTP requests sent by the
@@ -79,9 +76,9 @@ public class MobileServiceHttpClient {
      * @param requestHeaders The extra headers to send in the request
      * @param parameters     The query string parameters sent in the request
      */
-    public ListenableFuture<ServiceFilterResponse> request(String path, byte[] content, String httpMethod,
+    public Single<ServiceFilterResponse> request(String path, byte[] content, String httpMethod,
                                                            List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters) {
-        return this.request(path, content, httpMethod, requestHeaders, parameters, EnumSet.noneOf(MobileServiceFeatures.class));
+        return request(path, content, httpMethod, requestHeaders, parameters, EnumSet.noneOf(MobileServiceFeatures.class));
     }
 
     /**
@@ -94,7 +91,7 @@ public class MobileServiceHttpClient {
      * @param parameters     The query string parameters sent in the request
      * @param features       The features used in the request
      */
-    public ListenableFuture<ServiceFilterResponse> request(String path, String content, String httpMethod,
+    public Single<ServiceFilterResponse> request(String path, String content, String httpMethod,
                                                            List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters,
                                                            EnumSet<MobileServiceFeatures> features) {
         try {
@@ -104,11 +101,9 @@ public class MobileServiceHttpClient {
                 byteContent = content.getBytes(MobileServiceClient.UTF8_ENCODING);
             }
 
-            return this.request(path, byteContent, httpMethod, requestHeaders, parameters, features);
+            return request(path, byteContent, httpMethod, requestHeaders, parameters, features);
         } catch (UnsupportedEncodingException e) {
-            SettableFuture<ServiceFilterResponse> future = SettableFuture.create();
-            future.setException(e);
-            return future;
+            return Single.error(e);
         }
     }
 
@@ -122,19 +117,16 @@ public class MobileServiceHttpClient {
      * @param parameters     The query string parameters sent in the request
      * @param features       The features used in the request
      */
-    public ListenableFuture<ServiceFilterResponse> request(String path, byte[] content, String httpMethod,
-                                                           List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters,
-                                                           EnumSet<MobileServiceFeatures> features) {
-        final SettableFuture<ServiceFilterResponse> future = SettableFuture.create();
+    public Single<ServiceFilterResponse> request(String path, byte[] content, String httpMethod,
+                                                 List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters,
+                                                 EnumSet<MobileServiceFeatures> features) {
 
         if (path == null || path.trim().equals("")) {
-            future.setException(new IllegalArgumentException("request path cannot be null"));
-            return future;
+            return Single.error(new IllegalArgumentException("request path cannot be null"));
         }
 
         if (httpMethod == null || httpMethod.trim().equals("")) {
-            future.setException(new IllegalArgumentException("httpMethod cannot be null"));
-            return future;
+            return Single.error(new IllegalArgumentException("httpMethod cannot be null"));
         }
 
         Uri.Builder uriBuilder = Uri.parse(mClient.getAppUrl().toString()).buildUpon();
@@ -161,14 +153,13 @@ public class MobileServiceHttpClient {
         } else if (httpMethod.equalsIgnoreCase(HttpConstants.DeleteMethod)) {
             request = ServiceFilterRequestImpl.delete(mClient.getOkHttpClientFactory(), url, content);
         } else {
-            future.setException(new IllegalArgumentException("httpMethod not supported"));
-            return future;
+            return Single.error(new IllegalArgumentException("httpMethod not supported"));
         }
 
         String featuresHeader = MobileServiceFeatures.featuresToString(features);
         if (featuresHeader != null) {
             if (requestHeaders == null) {
-                requestHeaders = new ArrayList<Pair<String, String>>();
+                requestHeaders = new ArrayList<>();
             }
 
             boolean containsFeatures = false;
@@ -181,8 +172,8 @@ public class MobileServiceHttpClient {
 
             if (!containsFeatures) {
                 // Clone header list to prevent changing user's list
-                requestHeaders = new ArrayList<Pair<String, String>>(requestHeaders);
-                requestHeaders.add(new Pair<String, String>(X_ZUMO_FEATURES, featuresHeader));
+                requestHeaders = new ArrayList<>(requestHeaders);
+                requestHeaders.add(new Pair<>(X_ZUMO_FEATURES, featuresHeader));
             }
         }
 
@@ -193,25 +184,6 @@ public class MobileServiceHttpClient {
         }
 
         MobileServiceConnection conn = mClient.createConnection();
-
-        new Request(request, conn)
-                .request()
-                .subscribe(new DefaultObserver<ServiceFilterResponse>() {
-                    @Override
-                    public void onNext(@NonNull ServiceFilterResponse response) {
-                        future.set(response);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable throwable) {
-                        future.setException(throwable);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                });
-
-        return future;
+        return Request.create(request, conn);
     }
 }

@@ -24,7 +24,6 @@ See the Apache Version 2.0 License for specific language governing permissions a
 package com.microsoft.windowsazure.mobileservices.http;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -34,83 +33,78 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceException;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.Scheduler;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.functions.Function;
+import io.reactivex.Single;
 import io.reactivex.schedulers.Schedulers;
 
 public final class Request {
-	private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-	// We want at least 2 threads and at most 4 threads in the core pool,
-	// preferring to have 1 less than the CPU count to avoid saturating
-	// the CPU with background work
-	private static final int CORE_POOL_SIZE = Math.max(2, Math.min(CPU_COUNT - 1, 4));
-	private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
-	private static final int KEEP_ALIVE_SECONDS = 30;
+    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+    // We want at least 2 threads and at most 4 threads in the core pool,
+    // preferring to have 1 less than the CPU count to avoid saturating
+    // the CPU with background work
+    private static final int CORE_POOL_SIZE = Math.max(2, Math.min(CPU_COUNT - 1, 4));
+    private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+    private static final int KEEP_ALIVE_SECONDS = 30;
 
-	private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
-		private final AtomicInteger count = new AtomicInteger(1);
+    private static final ThreadFactory THREAD_FACTORY = new ThreadFactory() {
+        private final AtomicInteger count = new AtomicInteger(1);
 
-		public Thread newThread(Runnable runnable) {
-			return new Thread(runnable, "AsyncTask #" + count.getAndIncrement());
-		}
-	};
+        public Thread newThread(Runnable runnable) {
+            return new Thread(runnable, "AsyncTask #" + count.getAndIncrement());
+        }
+    };
 
-	private static final BlockingQueue<Runnable> QUEUE = new LinkedBlockingQueue<>(128);
+    private static final BlockingQueue<Runnable> QUEUE = new LinkedBlockingQueue<>(128);
 
-	private static final Executor THREAD_POOL_EXECUTOR;
+    private static final Executor THREAD_POOL_EXECUTOR;
 
-	static {
-		ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, QUEUE, THREAD_FACTORY);
-		threadPoolExecutor.allowCoreThreadTimeOut(true);
-		THREAD_POOL_EXECUTOR = threadPoolExecutor;
-	}
+    static {
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS, QUEUE, THREAD_FACTORY);
+        threadPoolExecutor.allowCoreThreadTimeOut(true);
+        THREAD_POOL_EXECUTOR = threadPoolExecutor;
+    }
 
-	private static final Scheduler SCHEDULER = Schedulers.from(THREAD_POOL_EXECUTOR);
+    private static final Scheduler SCHEDULER = Schedulers.from(THREAD_POOL_EXECUTOR);
 
-	/**
-	 * Connection to use for the request
-	 */
-	private MobileServiceConnection connection;
+    /**
+     * Connection to use for the request
+     */
+    private MobileServiceConnection connection;
 
-	/**
-	 * Request to execute
-	 */
-	private ServiceFilterRequest request;
+    /**
+     * Request to execute
+     */
+    private ServiceFilterRequest request;
 
-	/**
-	 * Constructor that specifies request and connection
-	 *
-	 * @param request
-	 * 		Request to use
-	 * @param connection
-	 * 		Connection to use
-	 */
-	public Request(ServiceFilterRequest request, MobileServiceConnection connection) {
-		this.request = request;
-		this.connection = connection;
-	}
+    /**
+     * Constructor that specifies request and connection
+     *
+     * @param request
+     *         Request to use
+     * @param connection
+     *         Connection to use
+     */
+    @Deprecated
+    public Request(ServiceFilterRequest request, MobileServiceConnection connection) {
+        this.request = request;
+        this.connection = connection;
+    }
 
-	public Observable<ServiceFilterResponse> request() {
-		return Observable
-				.fromCallable(new Callable<ServiceFilterResponse>() {
-					@Override
-					public ServiceFilterResponse call() throws Exception {
-						return connection.start(request).get();
-					}
-				})
-				.onErrorResumeNext(new Function<Throwable, ObservableSource<? extends ServiceFilterResponse>>() {
-					@Override
-					public ObservableSource<? extends ServiceFilterResponse> apply(@NonNull Throwable throwable) throws Exception {
-						if (throwable.getCause() instanceof MobileServiceException) {
-							return Observable.error(throwable.getCause());
-						} else {
-							return Observable.error(new MobileServiceException(throwable));
-						}
-					}
-				})
-				.subscribeOn(SCHEDULER);
-	}
+    @Deprecated
+    public Single<ServiceFilterResponse> request() {
+        return connection
+                .start(request)
+                .onErrorResumeNext(throwable -> {
+                    if (throwable.getCause() instanceof MobileServiceException) {
+                        return Single.error(throwable.getCause());
+                    } else {
+                        return Single.error(new MobileServiceException(throwable));
+                    }
+                })
+                .subscribeOn(SCHEDULER);
+    }
+
+    public static Single<ServiceFilterResponse> create(ServiceFilterRequest request, MobileServiceConnection connection) {
+        return new Request(request, connection).request();
+    }
 }
