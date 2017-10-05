@@ -23,43 +23,14 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.http;
 
-import java.io.IOException;
-
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Response;
-import okhttp3.Request;
 
 /**
  * Default implementation for OkHttpClientFactory
  */
 public class OkHttpClientFactoryImpl implements OkHttpClientFactory {
-
     @Override
     public OkHttpClient createOkHttpClient() {
-
-        OkHttpClient okClient = new OkHttpClient();
-        //okClient.networkInterceptors().add(new UserAgentInterceptor(MobileServiceConnection.getUserAgent()));
-
-        return okClient;
-    }
-
-    private class UserAgentInterceptor implements Interceptor {
-
-        private final String userAgent;
-
-        public UserAgentInterceptor(String userAgent) {
-            this.userAgent = userAgent;
-        }
-
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-            Request originalRequest = chain.request();
-            Request requestWithUserAgent = originalRequest.newBuilder()
-                    .removeHeader("User-Agent")
-                    .addHeader("User-Agent", userAgent)
-                    .build();
-            return chain.proceed(requestWithUserAgent);
-        }
+        return new OkHttpClient();
     }
 }

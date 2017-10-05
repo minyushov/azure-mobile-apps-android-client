@@ -154,13 +154,9 @@ public class ServiceFilterRequestImpl implements ServiceFilterRequest {
 
     @Override
     public ServiceFilterResponse execute() throws Exception {
-        // Execute request
         OkHttpClient client = mOkHttpClientFactory.createOkHttpClient();
-
-        final Response response = client.newCall(mRequest).execute();
-
-        ServiceFilterResponse serviceFilterResponse = new ServiceFilterResponseImpl(response);
-        return serviceFilterResponse;
+        Response response = client.newCall(mRequest).execute();
+        return new ServiceFilterResponseImpl(response);
     }
     
     @Override

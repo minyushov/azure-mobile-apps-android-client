@@ -29,11 +29,10 @@ import okhttp3.OkHttpClient;
  * Factory for AndroidHttpClient instances
  */
 public interface OkHttpClientFactory {
-
     /**
      * Creates a new AndroidHttpClient
      *
      * @return A new AndroidHttpClient
      */
-    public OkHttpClient createOkHttpClient();
+    OkHttpClient createOkHttpClient();
 }
