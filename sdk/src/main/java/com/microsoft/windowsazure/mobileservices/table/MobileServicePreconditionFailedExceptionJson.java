@@ -38,8 +38,8 @@ public class MobileServicePreconditionFailedExceptionJson extends MobileServiceE
      * MobileServicePreconditionFailedExceptionJson class.
      *
      * @param msException The inner exception.
-     * @param value     The current instance from the server that the precondition
-     *                  failed for.
+     * @param value       The current instance from the server that the precondition
+     *                    failed for.
      */
     public MobileServicePreconditionFailedExceptionJson(MobileServiceException msException, JsonObject value) {
         super(msException, value);

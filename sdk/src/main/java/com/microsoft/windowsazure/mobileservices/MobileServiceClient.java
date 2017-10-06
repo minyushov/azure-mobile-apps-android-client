@@ -83,7 +83,7 @@ public class MobileServiceClient {
      */
     private GsonBuilder mGsonBuilder;
     /**
-     * AndroidHttpClientFactory used for request execution
+     * OkHttpClientFactory used for request execution
      */
     private OkHttpClientFactory mOkHttpClientFactory;
 
@@ -113,7 +113,7 @@ public class MobileServiceClient {
     /**
      * Constructor for the MobileServiceClient
      *
-     * @param appUrl  Mobile Service URL
+     * @param appUrl Mobile Service URL
      * @throws java.net.MalformedURLException
      */
     public MobileServiceClient(String appUrl, String appKey) throws MalformedURLException {
@@ -123,7 +123,7 @@ public class MobileServiceClient {
     /**
      * Constructor for the MobileServiceClient
      *
-     * @param appUrl  Mobile Service URL
+     * @param appUrl Mobile Service URL
      */
     public MobileServiceClient(URL appUrl, String appKey) {
         GsonBuilder gsonBuilder = createMobileServiceGsonBuilder();
@@ -133,7 +133,7 @@ public class MobileServiceClient {
     /**
      * Constructor for the MobileServiceClient
      *
-     * @param appUrl  Mobile Service URL
+     * @param appUrl Mobile Service URL
      * @throws java.net.MalformedURLException
      */
     public MobileServiceClient(String appUrl, String appKey, GsonBuilder gsonBuilder) throws MalformedURLException {
@@ -143,7 +143,7 @@ public class MobileServiceClient {
     /**
      * Constructor for the MobileServiceClient
      *
-     * @param appUrl  Mobile Service URL
+     * @param appUrl Mobile Service URL
      */
     public MobileServiceClient(URL appUrl, String appKey, GsonBuilder gsonBuilder) {
         initialize(appUrl, appKey, gsonBuilder, new OkHttpClientFactoryImpl());
@@ -387,7 +387,7 @@ public class MobileServiceClient {
      * @param parameters     The query string parameters sent in the request
      */
     public Single<ServiceFilterResponse> invokeApi(String apiName, byte[] content, String httpMethod, List<Pair<String, String>> requestHeaders,
-                                                             List<Pair<String, String>> parameters) {
+                                                   List<Pair<String, String>> parameters) {
         return invokeApiInternal(apiName, content, httpMethod, requestHeaders, parameters, EnumSet.of(MobileServiceFeatures.GenericApiCall));
     }
 
@@ -462,8 +462,7 @@ public class MobileServiceClient {
             throw new IllegalArgumentException("Invalid Application URL");
         }
 
-        URL normalizedAppURL = normalizeUrl(appUrl);
-        mAppUrl = normalizedAppURL;
+        mAppUrl = normalizeUrl(appUrl);
         mAppKey = appKey;
         mGsonBuilder = gsonBuilder;
         mOkHttpClientFactory = okHttpClientFactory;
@@ -506,18 +505,18 @@ public class MobileServiceClient {
     }
 
     /**
-     * Gets the AndroidHttpClientFactory
+     * Gets the OkHttpClientFactory
      *
-     * @return OkHttp Client Factory
+     * @return OkHttpClientFactory
      */
     public OkHttpClientFactory getOkHttpClientFactory() {
         return mOkHttpClientFactory;
     }
 
     /**
-     * Sets the AndroidHttpClientFactory
+     * Sets the OkHttpClientFactory
      */
-    public void setAndroidHttpClientFactory(OkHttpClientFactory mOkHttpClientFactory) {
-        this.mOkHttpClientFactory = mOkHttpClientFactory;
+    public void setOkHttpClientFactory(OkHttpClientFactory factory) {
+        this.mOkHttpClientFactory = factory;
     }
 }

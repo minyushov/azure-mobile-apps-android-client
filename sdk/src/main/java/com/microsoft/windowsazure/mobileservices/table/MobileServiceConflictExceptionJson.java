@@ -38,7 +38,7 @@ public class MobileServiceConflictExceptionJson extends MobileServiceExceptionBa
      * MobileServiceConflictExceptionJson class.
      *
      * @param msException The inner exception.
-     * @param value     The current instance from server that the conflict occurred for.
+     * @param value       The current instance from server that the conflict occurred for.
      */
     public MobileServiceConflictExceptionJson(MobileServiceException msException, JsonObject value) {
         super(msException, value);

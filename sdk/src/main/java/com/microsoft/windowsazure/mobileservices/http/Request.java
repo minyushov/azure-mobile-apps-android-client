@@ -79,19 +79,15 @@ public final class Request {
     /**
      * Constructor that specifies request and connection
      *
-     * @param request
-     *         Request to use
-     * @param connection
-     *         Connection to use
+     * @param request    Request to use
+     * @param connection Connection to use
      */
-    @Deprecated
-    public Request(ServiceFilterRequest request, MobileServiceConnection connection) {
+    private Request(ServiceFilterRequest request, MobileServiceConnection connection) {
         this.request = request;
         this.connection = connection;
     }
 
-    @Deprecated
-    public Single<ServiceFilterResponse> request() {
+    private Single<ServiceFilterResponse> request() {
         return connection
                 .start(request)
                 .onErrorResumeNext(throwable -> {

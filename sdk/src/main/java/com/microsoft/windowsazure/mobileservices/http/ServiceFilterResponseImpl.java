@@ -82,7 +82,7 @@ public class ServiceFilterResponseImpl implements ServiceFilterResponse {
             } else {
                 mResponseContent = null;
             }
-        }finally {
+        } finally {
             if (response != null && response.body() != null) {
                 response.body().close();
             }
@@ -118,7 +118,7 @@ public class ServiceFilterResponseImpl implements ServiceFilterResponse {
         return StatusLine.get(mResponse);
     }
 
-    public static InputStream getUngzippedContent(Response response)  throws IOException {
+    public static InputStream getUngzippedContent(Response response) throws IOException {
 
         InputStream responseStream = response.body().byteStream();
 

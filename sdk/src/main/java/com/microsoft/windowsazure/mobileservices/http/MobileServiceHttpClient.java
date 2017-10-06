@@ -53,11 +53,13 @@ public class MobileServiceHttpClient {
 
     /**
      * Get client associated with this HTTP caller.
+     *
      * @return MobileServiceClient
      */
-    public MobileServiceClient getClient(){
+    public MobileServiceClient getClient() {
         return mClient;
     }
+
     /**
      * Constructor
      *
@@ -77,7 +79,7 @@ public class MobileServiceHttpClient {
      * @param parameters     The query string parameters sent in the request
      */
     public Single<ServiceFilterResponse> request(String path, byte[] content, String httpMethod,
-                                                           List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters) {
+                                                 List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters) {
         return request(path, content, httpMethod, requestHeaders, parameters, EnumSet.noneOf(MobileServiceFeatures.class));
     }
 
@@ -92,8 +94,8 @@ public class MobileServiceHttpClient {
      * @param features       The features used in the request
      */
     public Single<ServiceFilterResponse> request(String path, String content, String httpMethod,
-                                                           List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters,
-                                                           EnumSet<MobileServiceFeatures> features) {
+                                                 List<Pair<String, String>> requestHeaders, List<Pair<String, String>> parameters,
+                                                 EnumSet<MobileServiceFeatures> features) {
         try {
             byte[] byteContent = null;
 

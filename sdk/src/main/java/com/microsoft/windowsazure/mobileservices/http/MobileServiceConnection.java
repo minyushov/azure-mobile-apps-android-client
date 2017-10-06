@@ -23,6 +23,8 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.http;
 
+import java.util.Locale;
+
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceException;
 
@@ -83,11 +85,8 @@ public class MobileServiceConnection {
     /**
      * Generates the User-Agent
      */
-    static String getUserAgent() {
-        // FIXME: HARDCODE
-        String userAgent = String.format("ZUMO/1.0 (lang=%s; os=%s; os_version=%s; arch=%s; version=%s)", "Java", "Android", "5.0", "arm", SDK_VERSION);
-
-        return userAgent;
+    private static String getUserAgent() {
+        return String.format("ZUMO/1.0 (lang=%s; os=%s; os_version=%s; arch=%s; version=%s)", "Java", "Android", "5.0", "arm", SDK_VERSION);
     }
 
     /**
@@ -116,7 +115,7 @@ public class MobileServiceConnection {
                             if (responseContent != null && !responseContent.trim().equals("")) {
                                 throw new MobileServiceException(responseContent, response);
                             } else {
-                                throw new MobileServiceException(String.format("{'code': %d}", statusCode), response);
+                                throw new MobileServiceException(String.format(Locale.US, "{'code': %d}", statusCode), response);
                             }
                         }
 

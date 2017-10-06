@@ -43,7 +43,7 @@ public class MobileServiceExceptionBase extends MobileServiceException {
      * MobileServiceExceptionBase class.
      *
      * @param msException The inner exception.
-     * @param value     The current instance from the server for which the exception was created
+     * @param value       The current instance from the server for which the exception was created
      */
     public MobileServiceExceptionBase(MobileServiceException msException, JsonObject value) {
         super(msException.getMessage(), msException.getCause(), msException.getResponse());
@@ -51,7 +51,6 @@ public class MobileServiceExceptionBase extends MobileServiceException {
     }
 
     /**
-     *
      * @return JsonObject at the cause of exception
      */
     public JsonObject getValue() {
@@ -59,7 +58,6 @@ public class MobileServiceExceptionBase extends MobileServiceException {
     }
 
     /**
-     *
      * @param mValue The instance for which the exception is generated
      */
     public void setValue(JsonObject mValue) {

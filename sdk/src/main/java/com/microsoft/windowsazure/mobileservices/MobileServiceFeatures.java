@@ -73,9 +73,11 @@ public enum MobileServiceFeatures {
      */
     OpportunisticConcurrency("OC");
     private final static MobileServiceFeatures[] AllFeatures;
+
     static {
         AllFeatures = MobileServiceFeatures.class.getEnumConstants();
     }
+
     private String value;
 
     /**
@@ -89,13 +91,12 @@ public enum MobileServiceFeatures {
     }
 
     /**
+     * @param features a set of features
      * @return a comma-separated list of feature codes which can be sent to
      * the service in the features header.
-     *
-     * @param features a set of features
      */
     public static String featuresToString(EnumSet<MobileServiceFeatures> features) {
-        ArrayList<String> usedFeatures = new ArrayList<String>();
+        ArrayList<String> usedFeatures = new ArrayList<>();
         for (MobileServiceFeatures feature : AllFeatures) {
             if (features.contains(feature)) {
                 usedFeatures.add(feature.getValue());

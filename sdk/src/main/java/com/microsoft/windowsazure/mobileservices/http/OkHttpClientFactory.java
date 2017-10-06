@@ -26,13 +26,13 @@ package com.microsoft.windowsazure.mobileservices.http;
 import okhttp3.OkHttpClient;
 
 /**
- * Factory for AndroidHttpClient instances
+ * Factory for OkHttpClient instances
  */
 public interface OkHttpClientFactory {
     /**
-     * Creates a new AndroidHttpClient
+     * Creates a new OkHttpClient
      *
-     * @return A new AndroidHttpClient
+     * @return A new OkHttpClient
      */
     OkHttpClient createOkHttpClient();
 }

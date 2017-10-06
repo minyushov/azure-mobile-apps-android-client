@@ -274,9 +274,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     }
 
     /**
-     * @return the system properties defined or annotated in the entity class
-     *
      * @param clazz Target entity class
+     * @return the system properties defined or annotated in the entity class
      */
     public static <F> EnumSet<MobileServiceSystemProperty> getSystemProperties(Class<F> clazz) {
         EnumSet<MobileServiceSystemProperty> result = EnumSet.noneOf(MobileServiceSystemProperty.class);
@@ -305,7 +304,6 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     }
 
     /**
-     *
      * @param instance Target JsonObject
      * @return List of entities
      */
@@ -337,9 +335,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     }
 
     /**
-     * @return the id property class defined or annotated in the entity class
-     *
      * @param clazz Target entity class
+     * @return the id property class defined or annotated in the entity class
      */
     protected static <F> Class<?> getIdPropertyClass(Class<F> clazz) {
         // Search for id properties annotations, regardless case
@@ -361,9 +358,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     }
 
     /**
-     * @return the id property class defined or annotated in the entity class
-     *
      * @param clazz Target entity class
+     * @return the id property class defined or annotated in the entity class
      */
     protected static <F> boolean isIntegerClass(Class<F> clazz) {
         return clazz.equals(Integer.class) || clazz.equals(Long.class) || clazz.equals(int.class) || clazz.equals(long.class);
@@ -731,9 +727,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     }
 
     /**
-     * @return the string value represented by the object.
-     *
      * @param o The object for which the string value is to be extracted
+     * @return the string value represented by the object.
      */
     protected String getStringValue(Object o) {
         String result;
@@ -873,9 +868,8 @@ abstract class MobileServiceTableBase implements MobileServiceTableSystemPropert
     }
 
     /**
-     * @return the numeric value represented by the object.
-     *
      * @param o the object for which numberic value is to be extracted
+     * @return the numeric value represented by the object.
      */
     protected long getNumericValue(Object o) {
         long result;

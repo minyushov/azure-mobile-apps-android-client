@@ -86,18 +86,18 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
         return mInternalTable
                 .execute()
                 .map(response -> {
-                        if (response.isJsonObject()) {
-                            JsonObject jsonObject = response.getAsJsonObject();
+                    if (response.isJsonObject()) {
+                        JsonObject jsonObject = response.getAsJsonObject();
 
-                            int count = jsonObject.get("count").getAsInt();
-                            JsonElement elements = jsonObject.get("results");
+                        int count = jsonObject.get("count").getAsInt();
+                        JsonElement elements = jsonObject.get("results");
 
-                            List<E> list = parseResults(elements);
-                            return new MobileServiceList<E>(list, count);
-                        } else {
-                            List<E> list = parseResults(response);
-                            return new MobileServiceList<E>(list, -1);
-                        }
+                        List<E> list = parseResults(elements);
+                        return new MobileServiceList<E>(list, count);
+                    } else {
+                        List<E> list = parseResults(response);
+                        return new MobileServiceList<E>(list, -1);
+                    }
                 });
     }
 
@@ -147,7 +147,7 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
 
             List<E> list = parseResults(elements);
 
-            if (nextLink != null){
+            if (nextLink != null) {
                 return new MobileServiceList<E>(list, count, nextLink);
             } else {
                 return new MobileServiceList<E>(list, count);

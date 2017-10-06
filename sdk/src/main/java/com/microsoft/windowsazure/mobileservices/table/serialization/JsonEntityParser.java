@@ -23,15 +23,15 @@ See the Apache Version 2.0 License for specific language governing permissions a
  */
 package com.microsoft.windowsazure.mobileservices.table.serialization;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JsonEntityParser {
     /**
@@ -43,7 +43,7 @@ public class JsonEntityParser {
      * @return List of entities
      */
     public static <E> List<E> parseResults(JsonElement results, Gson gson, Class<E> clazz) {
-        List<E> result = new ArrayList<E>();
+        List<E> result = new ArrayList<>();
         String idPropertyName = getIdPropertyName(clazz);
 
         // Parse results

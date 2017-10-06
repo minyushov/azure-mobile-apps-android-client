@@ -35,26 +35,26 @@ public interface ServiceFilterResponse {
      *
      * @return The response's headers
      */
-    public Headers getHeaders();
+    Headers getHeaders();
 
     /**
      * Gets the response's content.
      *
      * @return String with the response's content
      */
-    public String getContent();
+    String getContent();
 
     /**
      * Gets the response's content.
      *
      * @return byte array with the response's content
      */
-    public byte[] getRawContent();
+    byte[] getRawContent();
 
     /**
      * Gets the response's status.
      *
      * @return Response's status
      */
-    public StatusLine getStatus();
+    StatusLine getStatus();
 }

@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -145,11 +146,7 @@ public class ServiceFilterRequestImpl implements ServiceFilterRequest {
     }
 
     private static Request.Builder getBaseRequestBuilder(String url) {
-
-        Request.Builder builder = new Request.Builder()
-                .url(url);
-
-        return builder;
+        return new Request.Builder().url(url);
     }
 
     @Override
@@ -158,7 +155,7 @@ public class ServiceFilterRequestImpl implements ServiceFilterRequest {
         Response response = client.newCall(mRequest).execute();
         return new ServiceFilterResponseImpl(response);
     }
-    
+
     @Override
     public Headers getHeaders() {
         return mRequest.headers();

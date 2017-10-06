@@ -34,7 +34,7 @@ public interface ServiceFilterRequest {
     /**
      * @return request's Headers
      */
-    public Headers getHeaders();
+    Headers getHeaders();
 
     /**
      * Adds a new Header to the request
@@ -42,29 +42,29 @@ public interface ServiceFilterRequest {
      * @param name Header Name
      * @param val  Header Value
      */
-    public void addHeader(String name, String val);
+    void addHeader(String name, String val);
 
     /**
      * Remove Header from the request
      *
      * @param name Header Name
      */
-    public void removeHeader(String name);
+    void removeHeader(String name);
 
     /**
      * Gets the request's content
      */
-    public String getContent();
+    String getContent();
 
     /**
      * Gets the request's content
      */
-    public byte[] getRawContent();
+    byte[] getRawContent();
 
     /**
      * Gets request's URL
      */
-    public String getUrl();
+    String getUrl();
 
     /**
      * Sets the request's URL
@@ -72,12 +72,12 @@ public interface ServiceFilterRequest {
      * @param url
      * @throws java.net.URISyntaxException
      */
-    public void setUrl(String url) throws URISyntaxException;
+    void setUrl(String url) throws URISyntaxException;
 
     /**
      * Gets the request's method
      */
-    public String getMethod();
+    String getMethod();
 
     /**
      * Executes the request
@@ -85,5 +85,5 @@ public interface ServiceFilterRequest {
      * @return ServiceFilterResponse with the request's response
      * @throws Exception
      */
-    public ServiceFilterResponse execute() throws Exception;
+    ServiceFilterResponse execute() throws Exception;
 }

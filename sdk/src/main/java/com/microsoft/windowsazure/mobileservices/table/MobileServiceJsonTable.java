@@ -149,7 +149,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
     /**
      * Make the request to the mobile service with the query URL
      *
-     * @param url The query url
+     * @param url      The query url
      * @param features The features used in the request
      */
     private Single<JsonElement> executeUrlQuery(String url, EnumSet<MobileServiceFeatures> features) {
@@ -157,7 +157,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
                 .map(response -> {
                     String nextLinkHeaderValue = getHeaderValue(response.second.getHeaders(), "Link");
 
-                    if (nextLinkHeaderValue != null){
+                    if (nextLinkHeaderValue != null) {
                         JsonObject jsonResult = new JsonObject();
 
                         String nextLink = nextLinkHeaderValue.replace("; rel=next", "");
@@ -540,7 +540,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
     /**
      * Executes the query against the table
      *
-     * @param path        Request to execute
+     * @param path           Request to execute
      * @param content        The content of the request body
      * @param httpMethod     The method of the HTTP request
      * @param requestHeaders Additional request headers used in the HTTP request
@@ -567,7 +567,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
                     if (responseContent == null) {
                         return new Pair<JsonObject, ServiceFilterResponse>(null, null);
                     } else {
-                        if (!responseContent.isEmpty()){
+                        if (!responseContent.isEmpty()) {
                             JsonElement json = new JsonParser().parse(responseContent);
                             return json.isJsonObject() ?
                                     Pair.create(json.getAsJsonObject(), response) :
@@ -583,11 +583,11 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
     /**
      * Retrieves a set of rows from using the specified URL
      *
-     * @param url    The URL used to retrieve the rows
+     * @param url      The URL used to retrieve the rows
      * @param features The features used in this request
      */
     private Single<Pair<JsonElement, ServiceFilterResponse>> executeGetRecords(String url, EnumSet<MobileServiceFeatures> features) {
-        ServiceFilterRequest request = ServiceFilterRequestImpl.get(mClient.getOkHttpClientFactory(), url );
+        ServiceFilterRequest request = ServiceFilterRequestImpl.get(mClient.getOkHttpClientFactory(), url);
 
         String featuresHeader = MobileServiceFeatures.featuresToString(features);
         if (featuresHeader != null) {
