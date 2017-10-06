@@ -1,23 +1,15 @@
 buildscript {
-	ext {
-		javaVersion = JavaVersion.VERSION_1_8
+	apply from: "versions.gradle"
 
-		androidMinSdkVersion = 19
-		androidCompileSdkVersion = 26
-		androidTargetSdkVersion = 25
-		androidBuildToolsVersion = "26.0.2"
-		androidSupportLibraryVersion = "26.1.0"
-
-		rxJavaVersion = "2.1.4"
-		gsonVersion = "2.8.2"
-		okhttpVersion = "3.9.0"
-	}
 	repositories {
 		jcenter()
 		google()
 	}
+
 	dependencies {
-		classpath 'com.android.tools.build:gradle:3.0.0-beta7'
+		classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
+		classpath "com.github.dcendents:android-maven-gradle-plugin:2.0"
+		classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
 	}
 }
 

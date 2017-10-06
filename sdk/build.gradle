@@ -1,90 +1,5 @@
-plugins {
-	id "com.github.dcendents.android-maven" version "2.0"
-	id "com.jfrog.bintray" version "1.7.3"
-}
-
 apply plugin: 'java'
-apply plugin: 'maven-publish'
-
-def libraryVersion = "3.2.7"
-def libraryName = "azure-mobile-apps"
-def libraryGroup = "com.minyushov.android"
-def libraryRepo = "android"
-def libraryUrl = "https://github.com/Azure/azure-mobile-apps-android-client.git"
-
-project.archivesBaseName = libraryName
-group = libraryGroup
-version = libraryVersion
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-	user = properties.getProperty("bintray.user")
-	key = properties.getProperty("bintray.apikey")
-
-	configurations = ['archives']
-	dryRun = false
-
-	pkg {
-		repo = libraryRepo
-		name = libraryName
-		vcsUrl = libraryUrl
-		licenses = ['Apache-2.0']
-	}
-}
-
-install {
-	repositories.mavenInstaller {
-		pom.project {
-			packaging 'aar'
-			groupId libraryGroup
-			artifactId libraryName
-			version libraryVersion
-
-			name libraryName
-			url libraryUrl
-
-			licenses {
-				license {
-					name 'The Apache Software License, Version 2.0'
-					url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-				}
-			}
-			developers {
-				developer {
-					name 'microsoft'
-				}
-			}
-			scm {
-				connection libraryUrl
-				url libraryUrl
-			}
-		}
-	}
-}
-
-task sourcesJar(type: Jar) {
-	from sourceSets.main.java.srcDirs
-	classifier = "sources"
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = "javadoc"
-	from javadoc.destinationDir
-}
-
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			groupId libraryGroup
-			artifactId libraryName
-			version libraryVersion
-
-			from components.java
-		}
-	}
-}
+apply from: 'publish.gradle'
 
 compileJava {
 	sourceCompatibility = javaVersion
@@ -95,9 +10,4 @@ dependencies {
 	compile "com.google.code.gson:gson:$gsonVersion"
 	compile "com.squareup.okhttp3:okhttp:$okhttpVersion"
 	compile "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-}
-
-artifacts {
-	archives sourcesJar
-	archives javadocJar
 }
