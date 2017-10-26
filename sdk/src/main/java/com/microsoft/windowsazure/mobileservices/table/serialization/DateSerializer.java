@@ -67,9 +67,9 @@ public class DateSerializer implements JsonSerializer<Date>, JsonDeserializer<Da
                 String miliseconds = splittedByDot[splittedByDot.length - 1].replace("Z", "");
 
                 if (miliseconds.length() == 1) {
-                    miliseconds = "00" + miliseconds;
+                    miliseconds = miliseconds + "00";
                 } else if (miliseconds.length() == 2) {
-                    miliseconds = "0" + miliseconds;
+                    miliseconds = miliseconds + "0";
                 }
 
                 s = splittedByDot[0] + "." + miliseconds + "Z";
