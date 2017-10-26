@@ -317,7 +317,7 @@ public final class MobileServiceJsonTable extends MobileServiceTableBase {
 
         return executeGetRecords(url, features)
                 .map(response -> {
-                    if (response.first.isJsonArray()) {
+                    if (!response.first.isJsonObject()) {
                         // empty result
                         throw new MobileServiceException("A record with the specified Id cannot be found", response.second);
                     } else {
