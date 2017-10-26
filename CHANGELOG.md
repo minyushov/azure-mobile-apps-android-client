@@ -1,4 +1,37 @@
-# Azure Mobile Services Android SDK Change Log
+# Azure Mobile Services Java SDK Change Log
+
+### Java SDK: Version 4.0.1
+- Replace Guava with RxJava
+- Minor bug fixes
+
+### Java SDK: Version 4.0.0
+- Replace Guava with RxJava
+- Update dependencies
+
+### Java SDK: Version 3.2.7
+- Update dependencies
+- Minor bug fixes
+
+### Java SDK: Version 3.2.6
+- Update dependencies
+
+### Java SDK: Version 3.2.5
+- Add missing underscores in system properties
+
+### Java SDK: Version 3.2.4
+- Update dependencies
+
+### Java SDK: Version 3.2.3
+- Update dependencies
+
+### Java SDK: Version 3.2.2
+- Remove Android dependencies from SDK
+
+### Android SDK: Version 3.2.1
+- Return compatibility with Azure Mobile Services
+- Return system properties
+- Parse responses off the main thread
+- Update dependencies
 
 ### Android SDK: Version 3.2.0
 - [#84](https://github.com/Azure/azure-mobile-apps-android-client/pull/84) Support server login flow using Chrome CustomTabs. Google recently [announced](https://developers.googleblog.com/2016/08/modernizing-oauth-interactions-in-native-apps.html) the deprecation of Google OAuth login using webview. Azure Mobile Apps server login flow should use CustomTabs implementation `MobileServiceClient.login(String provider, String uriScheme, int authRequestCode)` instead of webview implementation `MobileServiceClient.login(String provider)`.
