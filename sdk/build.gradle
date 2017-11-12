@@ -1,5 +1,5 @@
 apply plugin: 'java'
-apply from: 'publish.gradle'
+apply plugin: 'bintray-simple'
 
 compileJava {
 	sourceCompatibility = javaVersion
@@ -10,4 +10,14 @@ dependencies {
 	compile "com.google.code.gson:gson:$gsonVersion"
 	compile "com.squareup.okhttp3:okhttp:$okhttpVersion"
 	compile "io.reactivex.rxjava2:rxjava:$rxJavaVersion"
+}
+
+bintrayUpload {
+	dryRun = false
+	repo = "azure"
+	groupId = "com.minyushov.azure"
+	artifactId = "azure-mobile-apps"
+	version = "4.0.2"
+	vcsUrl = "https://github.com/minyushov/azure-mobile-apps-java.git"
+	license = "Apache-2.0"
 }

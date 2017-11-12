@@ -4,12 +4,12 @@ buildscript {
 	repositories {
 		jcenter()
 		google()
+		maven { url 'https://dl.bintray.com/minyushov/gradle' }
 	}
 
 	dependencies {
 		classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
-		classpath "com.github.dcendents:android-maven-gradle-plugin:2.0"
-		classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
+		classpath "com.minyushov.gradle:bintray-simple:0.0.1"
 	}
 }
 
