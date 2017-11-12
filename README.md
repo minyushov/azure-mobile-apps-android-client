@@ -8,8 +8,9 @@ With Microsoft Azure Mobile Apps you can add a scalable backend to your connecte
 repositories {
     maven { url "http://dl.bintray.com/minyushov/android" }
 }
+
 dependencies {
-    compile "com.minyushov.android:azure-mobile-apps:4.0.1"
+    compile "com.minyushov.android:azure-mobile-apps:4.0.2"
 }
 ```
 
