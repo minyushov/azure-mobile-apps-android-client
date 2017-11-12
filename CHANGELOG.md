@@ -1,5 +1,9 @@
 # Azure Mobile Services Java SDK Change Log
 
+### Java SDK: Version 4.0.2
+- Change bintray repository
+- Update dependencies
+
 ### Java SDK: Version 4.0.1
 - Replace Guava with RxJava
 - Minor bug fixes
