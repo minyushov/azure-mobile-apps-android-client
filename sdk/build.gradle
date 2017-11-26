@@ -1,5 +1,5 @@
 apply plugin: 'java'
-apply plugin: 'bintray-simple'
+apply plugin: 'com.minyushov.bintray'
 
 compileJava {
 	sourceCompatibility = javaVersion
