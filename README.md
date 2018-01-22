@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.minyushov.azure:azure-mobile-apps:4.0.2"
+    compile "com.minyushov.azure:azure-mobile-apps:4.0.3"
 }
 ```
 
