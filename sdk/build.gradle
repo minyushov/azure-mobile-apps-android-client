@@ -17,7 +17,7 @@ bintrayUpload {
 	repo = "azure"
 	groupId = "com.minyushov.azure"
 	artifactId = "azure-mobile-apps"
-	version = "4.0.2"
+	version = "4.0.3"
 	vcsUrl = "https://github.com/minyushov/azure-mobile-apps-java.git"
 	license = "Apache-2.0"
 }
