@@ -1,5 +1,9 @@
 # Azure Mobile Services Java SDK Change Log
 
+### Java SDK: Version 4.0.4
+- Update documentation
+- Update dependencies
+
 ### Java SDK: Version 4.0.3
 - Update dependencies
 
