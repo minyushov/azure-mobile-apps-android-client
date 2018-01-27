@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'com.minyushov.bintray'
 
 compileJava {
@@ -13,11 +13,21 @@ dependencies {
 }
 
 bintrayUpload {
-	dryRun = false
+	dryRun = true
 	repo = "azure"
 	groupId = "com.minyushov.azure"
 	artifactId = "azure-mobile-apps"
 	version = "4.0.3"
 	vcsUrl = "https://github.com/minyushov/azure-mobile-apps-java.git"
 	license = "Apache-2.0"
+	docsSettings {
+		options {
+			docTitle "Azure Mobile Apps Java SDK ${bintrayUpload.version} API"
+			windowTitle docTitle
+			links "https://docs.oracle.com/javase/8/docs/api/"
+			links "http://reactivex.io/RxJava/2.x/javadoc/"
+			links "http://square.github.io/okhttp/3.x/okhttp/"
+			linksOffline "https://static.javadoc.io/com.google.code.gson/gson/$gsonVersion/", "res/gson"
+		}
+	}
 }
