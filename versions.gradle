@@ -9,7 +9,7 @@ ext {
 	androidBuildToolsVersion = "27.0.3"
 	androidSupportLibraryVersion = "27.0.2"
 
-	rxJavaVersion = "2.1.8"
+	rxJavaVersion = "2.1.9"
 	gsonVersion = "2.8.2"
 	okhttpVersion = "3.9.1"
 }
