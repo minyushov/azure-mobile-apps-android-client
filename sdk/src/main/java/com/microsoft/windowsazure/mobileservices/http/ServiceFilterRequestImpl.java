@@ -56,11 +56,6 @@ public class ServiceFilterRequestImpl implements ServiceFilterRequest {
             = MediaType.parse(MobileServiceConnection.JSON_CONTENTTYPE);
 
     /**
-     * @param request
-     *            The request to use
-     */
-
-    /**
      * Constructor
      *
      * @param request The request to use
@@ -199,7 +194,6 @@ public class ServiceFilterRequestImpl implements ServiceFilterRequest {
     @Override
     public void setUrl(String url) throws URISyntaxException {
         mRequest = mRequest.newBuilder().url(url).build();
-
     }
 
     @Override

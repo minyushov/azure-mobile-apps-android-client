@@ -29,13 +29,12 @@ import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
  * Encapsulates the original exception and presents it in the context of MobileApp
  */
 public class MobileServiceException extends Exception {
-
     /**
      * UID used for serialization
      */
     private static final long serialVersionUID = 5267990724102948298L;
 
-    private ServiceFilterResponse mResponse;
+    private ServiceFilterResponse response;
 
     public MobileServiceException(Throwable throwable) {
         this("There was an error executing the request", throwable, null);
@@ -43,12 +42,12 @@ public class MobileServiceException extends Exception {
 
     public MobileServiceException(String detail, Throwable throwable, ServiceFilterResponse response) {
         this(detail, throwable);
-        mResponse = response;
+        this.response = response;
     }
 
     public MobileServiceException(String detail, ServiceFilterResponse response) {
         this(detail);
-        mResponse = response;
+        this.response = response;
     }
 
     /**
@@ -81,6 +80,6 @@ public class MobileServiceException extends Exception {
     }
 
     public ServiceFilterResponse getResponse() {
-        return mResponse;
+        return response;
     }
 }
