@@ -6,11 +6,11 @@ With Microsoft Azure Mobile Apps you can add a scalable backend to your connecte
 
 ```groovy
 repositories {
-    maven { url "https://dl.bintray.com/minyushov/azure" }
+    maven { url "http://dl.bintray.com/minyushov/azure" }
 }
 
 dependencies {
-    compile "com.minyushov.azure:azure-notification-hubs:0.4.5"
+    compile "com.minyushov.azure:azure-mobile-apps:4.0.3"
 }
 ```
 
