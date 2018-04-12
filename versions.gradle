@@ -1,13 +1,13 @@
 ext {
 	javaVersion = JavaVersion.VERSION_1_8
 
-	androidGradlePluginVersion = "3.1.0"
+	androidGradlePluginVersion = "3.1.1"
 
 	androidMinSdkVersion = 19
 	androidCompileSdkVersion = 27
 	androidTargetSdkVersion = 27
 	androidBuildToolsVersion = "27.0.3"
-	androidSupportLibraryVersion = "27.1.0"
+	androidSupportLibraryVersion = "27.1.1"
 
 	rxJavaVersion = "2.1.12"
 	gsonVersion = "2.8.2"
