@@ -44,7 +44,7 @@ public class LongSerializer implements JsonSerializer<Long> {
     @Override
     public JsonElement serialize(Long element, Type type, JsonSerializationContext ctx) {
         Long maxAllowedValue = 0x0020000000000000L;
-        Long minAllowedValue = Long.valueOf(0xFFE0000000000000L);
+        Long minAllowedValue = 0xFFE0000000000000L;
         if (element != null) {
             if (element > maxAllowedValue || element < minAllowedValue) {
                 throw new IllegalArgumentException("Long value must be between " + minAllowedValue + " and " + maxAllowedValue);

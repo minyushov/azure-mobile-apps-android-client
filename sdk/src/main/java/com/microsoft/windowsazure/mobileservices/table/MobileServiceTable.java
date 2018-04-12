@@ -93,10 +93,10 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
                         JsonElement elements = jsonObject.get("results");
 
                         List<E> list = parseResults(elements);
-                        return new MobileServiceList<E>(list, count);
+                        return new MobileServiceList<>(list, count);
                     } else {
                         List<E> list = parseResults(response);
-                        return new MobileServiceList<E>(list, -1);
+                        return new MobileServiceList<>(list, -1);
                     }
                 });
     }
@@ -148,14 +148,14 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
             List<E> list = parseResults(elements);
 
             if (nextLink != null) {
-                return new MobileServiceList<E>(list, count, nextLink);
+                return new MobileServiceList<>(list, count, nextLink);
             } else {
-                return new MobileServiceList<E>(list, count);
+                return new MobileServiceList<>(list, count);
             }
 
         } else {
             List<E> list = parseResults(result);
-            return new MobileServiceList<E>(list, list.size());
+            return new MobileServiceList<>(list, list.size());
         }
     }
 
@@ -165,7 +165,7 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
      * @return The ExecutableQuery representing the filter
      */
     public ExecutableQuery<E> where() {
-        ExecutableQuery<E> query = new ExecutableQuery<E>();
+        ExecutableQuery<E> query = new ExecutableQuery<>();
         query.setTable(this);
         return query;
     }
@@ -181,7 +181,7 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
             throw new IllegalArgumentException("Query must not be null");
         }
 
-        ExecutableQuery<E> baseQuery = new ExecutableQuery<E>(query);
+        ExecutableQuery<E> baseQuery = new ExecutableQuery<>(query);
         baseQuery.setTable(this);
 
         return baseQuery;
@@ -354,9 +354,7 @@ public final class MobileServiceTable<E> extends MobileServiceTableBase {
 
         return mInternalTable
                 .update(json, parameters)
-                .onErrorResumeNext(throwable -> {
-                    return Single.error(transformToTypedException(throwable));
-                })
+                .onErrorResumeNext(throwable -> Single.error(transformToTypedException(throwable)))
                 .map(response -> {
                     E entity = parseResults(response).get(0);
                     if (entity != null && element != null) {

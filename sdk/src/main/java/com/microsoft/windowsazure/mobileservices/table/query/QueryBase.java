@@ -24,6 +24,7 @@ See the Apache Version 2.0 License for specific language governing permissions a
 package com.microsoft.windowsazure.mobileservices.table.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -95,11 +96,7 @@ class QueryBase implements Query {
         }
 
         if (this.mProjection != null) {
-            clone.mProjection = new ArrayList<>();
-
-            for (String column : this.mProjection) {
-                clone.mProjection.add(column);
-            }
+            clone.mProjection = new ArrayList<>(this.mProjection);
         }
 
         for (Pair<String, String> parameter : this.mUserDefinedParameters) {
@@ -177,13 +174,13 @@ class QueryBase implements Query {
 
     @Override
     public Query parameter(String parameter, String value) {
-        this.mUserDefinedParameters.add(new Pair<String, String>(parameter, value));
+        this.mUserDefinedParameters.add(new Pair<>(parameter, value));
         return this;
     }
 
     @Override
     public Query orderBy(String field, QueryOrder order) {
-        this.mOrderBy.add(new Pair<String, QueryOrder>(field, order));
+        this.mOrderBy.add(new Pair<>(field, order));
         return this;
     }
 
@@ -242,11 +239,8 @@ class QueryBase implements Query {
 
     @Override
     public Query select(String... fields) {
-        this.mProjection = new ArrayList<String>();
-        for (String field : fields) {
-            this.mProjection.add(field);
-        }
-
+        this.mProjection = new ArrayList<>();
+        Collections.addAll(this.mProjection, fields);
         return this;
     }
 

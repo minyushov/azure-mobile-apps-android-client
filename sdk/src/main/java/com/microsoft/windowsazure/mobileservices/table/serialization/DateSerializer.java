@@ -83,9 +83,7 @@ public class DateSerializer implements JsonSerializer<Date>, JsonDeserializer<Da
             throw new JsonParseException("Invalid length");
         }
 
-        Date date = dateFormat.parse(s);
-
-        return date;
+        return dateFormat.parse(s);
     }
 
     /**
@@ -94,10 +92,7 @@ public class DateSerializer implements JsonSerializer<Date>, JsonDeserializer<Da
     public static String serialize(Date date) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.'SSS'Z'", Locale.getDefault());
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        String formatted = dateFormat.format(date);
-
-        return formatted;
+        return dateFormat.format(date);
     }
 
     /**
@@ -120,7 +115,6 @@ public class DateSerializer implements JsonSerializer<Date>, JsonDeserializer<Da
      */
     @Override
     public JsonElement serialize(Date date, Type type, JsonSerializationContext ctx) {
-        JsonElement element = new JsonPrimitive(serialize(date));
-        return element;
+        return new JsonPrimitive(serialize(date));
     }
 }

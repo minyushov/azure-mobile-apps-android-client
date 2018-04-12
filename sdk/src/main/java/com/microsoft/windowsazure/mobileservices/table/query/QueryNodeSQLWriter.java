@@ -219,27 +219,15 @@ public class QueryNodeSQLWriter implements QueryNodeVisitor<QueryNode> {
     }
 
     private static String formatStartsWithOperation() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("(%1$s LIKE (%2$s || '%%'))");
-
-        return builder.toString();
+        return "(%1$s LIKE (%2$s || '%%'))";
     }
 
     private static String formatEndsWithOperation() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("(%1$s LIKE ('%%' || %2$s))");
-
-        return builder.toString();
+        return "(%1$s LIKE ('%%' || %2$s))";
     }
 
     private static String formatSubstringOfOperation() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("(%2$s LIKE ('%%'  || %1$s || '%%'))");
-
-        return builder.toString();
+        return "(%2$s LIKE ('%%'  || %1$s || '%%'))";
     }
 
     private static String formatSubstringOperation(int argumentsSize) {
@@ -259,11 +247,7 @@ public class QueryNodeSQLWriter implements QueryNodeVisitor<QueryNode> {
     }
 
     private static String formatIndexOfOperation() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("(instr(%1$s,%2$s) - 1)");
-
-        return builder.toString();
+        return "(instr(%1$s,%2$s) - 1)";
     }
 
     private static String formatOperation(String operation, Integer totalArguments) {
