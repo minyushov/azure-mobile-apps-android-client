@@ -163,8 +163,6 @@ public class MobileServiceClient {
         LongSerializer longSerializer = new LongSerializer();
         gsonBuilder.registerTypeAdapter(Long.class, longSerializer);
         gsonBuilder.registerTypeAdapter(long.class, longSerializer);
-
-        gsonBuilder.excludeFieldsWithModifiers(Modifier.FINAL, Modifier.TRANSIENT, Modifier.STATIC);
         gsonBuilder.serializeNulls(); // by default, add null serialization
 
         return gsonBuilder;
