@@ -5,7 +5,6 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 
 android {
 	compileSdkVersion androidCompileSdkVersion
-	buildToolsVersion androidBuildToolsVersion
 
 	defaultConfig {
 		applicationId "com.sample"
