@@ -13,7 +13,7 @@ dependencies {
 }
 
 bintrayUpload {
-	dryRun = true
+	dryRun = false
 	repo = "azure"
 	groupId = "com.minyushov.azure"
 	artifactId = "azure-mobile-apps"
