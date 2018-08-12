@@ -1,31 +1,10 @@
-apply plugin: 'com.android.application'
+apply plugin: 'java'
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-android {
-	compileSdkVersion androidCompileSdkVersion
-	buildToolsVersion androidBuildToolsVersion
-
-	defaultConfig {
-		applicationId "com.sample"
-		minSdkVersion androidMinSdkVersion
-		targetSdkVersion androidTargetSdkVersion
-		versionCode 1
-		versionName "1.0"
-
-		buildConfigField "String", "AZURE_API_KEY", "\"${properties.getProperty("azure.apikey")}\""
-		buildConfigField "String", "AZURE_HOST", "\"${properties.getProperty("azure.host")}\""
-		buildConfigField "String", "AZURE_TABLE", "\"${properties.getProperty("azure.table")}\""
-	}
-
-	compileOptions {
-		targetCompatibility javaVersion
-		sourceCompatibility javaVersion
-	}
+compileJava {
+	sourceCompatibility = javaVersion
+	targetCompatibility = javaVersion
 }
 
 dependencies {
 	implementation project(':sdk')
-	implementation "com.android.support:appcompat-v7:$androidSupportLibraryVersion"
 }

@@ -1,5 +1,11 @@
 buildscript {
-	apply from: "versions.gradle"
+	ext {
+		javaVersion = JavaVersion.VERSION_1_8
+
+		rxJavaVersion = "2.2.0"
+		gsonVersion = "2.8.5"
+		okhttpVersion = "3.11.0"
+	}
 
 	repositories {
 		jcenter()
@@ -8,15 +14,13 @@ buildscript {
 	}
 
 	dependencies {
-		classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
-		classpath "com.minyushov.gradle:bintray:1.0.5"
+		classpath "com.minyushov.gradle:bintray:1.1.0"
 	}
 }
 
 allprojects {
 	repositories {
 		jcenter()
-		google()
 	}
 }
 
