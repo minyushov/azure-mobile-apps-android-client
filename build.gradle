@@ -2,9 +2,9 @@ buildscript {
 	ext {
 		javaVersion = JavaVersion.VERSION_1_8
 
-		rxJavaVersion = "2.2.2"
+		rxJavaVersion = "2.2.6"
 		gsonVersion = "2.8.5"
-		okhttpVersion = "3.11.0"
+		okhttpVersion = "3.12.1"
 	}
 
 	repositories {
@@ -14,7 +14,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath "com.minyushov.gradle:bintray:1.1.0"
+		classpath "com.minyushov.gradle:bintray:1.2.0"
 	}
 }
 
